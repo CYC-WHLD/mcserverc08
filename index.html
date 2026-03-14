@@ -3,7 +3,7 @@
 <head>
     <!-- 
     ========================================================================
-    //  _   _  _   _  _   _           ____  _   _  ___ 
+    //  _   _   _   _   _   _           ____  _   _   ___ 
     // | | | || | | || \ | |  ____   / ___|| | | ||_ _|
     // | |_| || | | ||  \| | |____| | |    | |_| | | | 
     //  \_ _/ | |_| || |\  |        | |___ |  _  | | | 
@@ -65,7 +65,7 @@
         .nav-container {
             background: rgba(5, 5, 10, 0.85);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); /* 增加 Safari 相容性 */
+            -webkit-backdrop-filter: blur(20px); 
             border: 1.5px solid rgba(255, 255, 255, 0.18);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 210, 255, 0.1);
             transition: all 0.3s ease;
@@ -81,7 +81,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 38px; /* 手機版稍縮小 */
+            width: 38px;
             height: 38px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.05);
@@ -407,7 +407,7 @@
             letter-spacing: 0.05em;
         }
 
-        /* 導航標題優化：解決手機重疊問題 */
+        /* 導航標題優化 */
         .brand-title {
             font-size: 24px;
             flex-grow: 1;
@@ -438,12 +438,12 @@
                 </div>
             </div>
 
-            <!-- 中間：標題 移除 absolute，改用 flex 居中，我也不想但行動載具看不了==) -->
+            <!-- 中間：標題 -->
             <div class="brand-title font-calligraphy whitespace-nowrap overflow-hidden">
                 <span class="text-white">山岳</span><span class="text-[var(--cyber-blue)]">礦工藝</span>
             </div>
 
-            <!-- 右側：我的個資(?其實不算啦哈哈哈 -->
+            <!-- 右側：社群連結 -->
             <div class="flex items-center gap-2 md:gap-4 social-icon-group">
                 <a href="https://discord.gg/szbEv4gM" target="_blank" class="social-icon icon-discord" title="Discord"><i class="fa-brands fa-discord"></i></a>
                 <a href="https://github.com/CYC-WHLD" target="_blank" class="social-icon icon-github" title="GitHub" class="hidden sm:flex"><i class="fa-brands fa-github"></i></a>
@@ -452,7 +452,7 @@
         </div>
     </nav>
 
-    <!-- 霓虹(菲律賓人)大標題 -->
+    <!-- 英雄區塊 -->
     <section class="hero-section" id="top">
         <div class="text-[var(--cyber-blue)] font-mono tracking-[0.2em] md:tracking-[0.4em] text-[18px] md:text-[24px] mb-4 uppercase opacity-60">生電 探索 生存 冒險 工業 建築</div>
         <h1 class="cyber-title font-mono tracking-tighter">C08 Minecraft Server</h1>
@@ -477,17 +477,17 @@
             <p class="text-[14px] md:text-[16px] font-mono tracking-[0.4em] text-gray-700 uppercase">Selection Modules</p>
         </div>
         
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                <div class="glass-card text-center cursor-pointer group" onclick="showToast('載入更新日誌...')">
-                    <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">📂</div>
-                    <h3 class="font-bold text-lg mb-2">更新日誌</h3>
-                    <p class="text-xs text-gray-600">查看伺服器版本更迭與修復細節。</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div class="glass-card text-center cursor-pointer group" onclick="showToast('載入更新日誌...')">
+                <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">📂</div>
+                <h3 class="font-bold text-lg mb-2">更新日誌</h3>
+                <p class="text-xs text-gray-600">查看伺服器版本更迭與修復細節。</p>
             </div>
-            <div class="glass-card text-center cursor-pointer group"
-            onclick="window.location.href='https://cyc-whld.github.io/mcserverc08/cards2.html'">
+            <!-- 跳轉卡片：卡片 2 -->
+            <div class="glass-card text-center cursor-pointer group" onclick="window.location.href='https://cyc-whld.github.io/mcserverc08/cards.html'">
                 <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">📡</div>
-                    <h3 class="font-bold text-lg mb-2">伺服器 IP 資訊</h3>
-                    <p class="text-xs text-gray-500">獲取當前主線與測試服連線地址。</p>
+                <h3 class="font-bold text-lg mb-2">伺服器 IP 資訊</h3>
+                <p class="text-xs text-gray-500">獲取當前主線與測試服連線地址。</p>
             </div>
             <div class="glass-card text-center cursor-pointer group" onclick="showToast('正在存取配方資料庫...')">
                 <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">🧪</div>
@@ -512,7 +512,7 @@
         </div>
     </section>
 
-    <!-- 3D 渲染跟背景區 -->
+    <!-- 3D 渲染區域 -->
     <section class="slider-section">
         <canvas id="hologram-canvas"></canvas>
         <div class="slider-track" id="sliderTrack">
@@ -532,7 +532,7 @@
         </div>
     </section>
 
-    <!-- 版權所有 其實沒有 圖片都亂找呵呵 -->
+    <!-- 頁尾 -->
     <footer class="py-12 text-center border-t border-white/5 bg-[#030307]">
         <div class="footer-brand">山岳<span class="text-[var(--cyber-blue)]">礦工藝</span></div>
         <div class="footer-text font-mono">
@@ -542,7 +542,7 @@
         </div>
     </footer>
 
-    <!-- 按鈕:返回頂層 -->
+    <!-- 返回頂層 -->
     <a href="#top" id="backToTop" class="back-to-top">
         <div class="content-wrapper">
             <i class="fa-solid fa-chevron-up"></i>
@@ -553,7 +553,7 @@
     <div id="toast" class="toast-message"></div>
 
     <script>
-        // --- 3D 渲染代碼 數學交給AI算 我算了啦 ---
+        // --- 3D 渲染代碼 ---
         function createRealisticEarthTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 2048; canvas.height = 1024;
@@ -656,7 +656,7 @@
             const camera = new THREE.PerspectiveCamera(40, section.clientWidth / section.clientHeight, 0.1, 1000);
             const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
             renderer.setSize(section.clientWidth, section.clientHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // 限制移動端 PixelRatio 以提升效能
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.3));
             const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -664,7 +664,7 @@
             scene.add(sunLight);
 
             const starsGeometry = new THREE.BufferGeometry();
-            const starsCount = window.innerWidth < 768 ? 1500 : 3000; // 手機減少星點數量
+            const starsCount = window.innerWidth < 768 ? 1500 : 3000;
             const starsPositions = new Float32Array(starsCount * 3);
             for (let i = 0; i < starsCount * 3; i += 3) {
                 const r = 200 + Math.random() * 100;
@@ -733,7 +733,7 @@
                 moon.position.y = Math.sin(moonData.angle) * moonData.radius * Math.sin(moonData.inclination);
                 moon.rotation.y += 0.002;
 
-                ships.forEach((ship, index) => {
+                ships.forEach((ship) => {
                     const sd = ship.userData;
                     const angle = time * sd.speed * 4 + sd.offset;
                     ship.position.x = Math.cos(angle) * sd.radius;
@@ -775,7 +775,14 @@
 
         function copyIP() {
             const ip = "C08.SERVER.VOID";
-            navigator.clipboard.writeText(ip).then(() => showToast(`SUCCESS: ADDRESS [${ip}] COPIED`));
+            // 使用支援 iFrame 的複製方法
+            const el = document.createElement('textarea');
+            el.value = ip;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast(`SUCCESS: ADDRESS [${ip}] COPIED`);
         }
     </script>
 </body>
