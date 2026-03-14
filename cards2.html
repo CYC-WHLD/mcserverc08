@@ -299,8 +299,8 @@
                         </h2>
                     </div>
                     <div class="font-mono text-right hidden md:block">
-                        <p class="text-[10px] text-gray-500">ERROR_CODE: 0x88NF2</p>
-                        <p class="text-[10px] text-gray-500">LOC: NEBULA_CORE</p>
+                        <p class="text-[10px] text-gray-500">連線除錯</p>
+                        <p class="text-[10px] text-gray-500">Connection Troubleshooting</p>
                     </div>
                 </div>
 
@@ -308,11 +308,11 @@
                     <!-- 診斷項 01 -->
                     <div class="cyber-debug-card group">
                         <div class="scanline"></div>
-                        <span class="cyber-label">01 // TUNNEL</span>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">檢查 VPN 隧道</h4>
+                        <span class="cyber-label">01 // CONNECTED</span>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">檢查VPN是否連線 </h4>
                         <p class="text-gray-400 text-xs leading-relaxed font-mono">
                             STATUS: OFFLINE? <br>
-                            確認狀態顯示為「已連線」。若隧道建立超時，請嘗試切換通訊協議 (UDP/TCP)。
+                            確認狀態顯示為「已連線」。若訊號低於三格，請嘗試工作管理員關閉重連。
                         </p>
                     </div>
 
@@ -320,32 +320,36 @@
                     <div class="cyber-debug-card group">
                         <div class="scanline"></div>
                         <span class="cyber-label">02 // AUTH</span>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">憑證驗證</h4>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">資訊校驗</h4>
                         <p class="text-gray-400 text-xs leading-relaxed font-mono">
                             TOKEN_MISMATCH? <br>
-                            點擊上方卡片自動複製，嚴禁手動輸入以防字元遺漏或包含隱形空格。
+                            點擊上方卡片會自動複製，手動輸入可能會遺漏字元或包含隱形空格。
                         </p>
                     </div>
 
                     <!-- 診斷項 03 -->
                     <div class="cyber-debug-card group">
                         <div class="scanline"></div>
-                        <span class="cyber-label">03 // GATEWAY</span>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">網路出口測試</h4>
+                        <span class="cyber-label">03 // VERSION</span>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">版本確認</h4>
                         <p class="text-gray-400 text-xs leading-relaxed font-mono">
-                            ROUTE_BLOCKED? <br>
-                            嘗試瀏覽網頁確認隧道通暢。若無法開啟任何頁面，請重啟行動數據或更換節點。
+                            VERSION_MATCH? <br>
+                            目前伺服器版本為1.21.11，過高或過低將無法連線
                         </p>
+                        
                     </div>
 
                     <!-- 診斷項 04 -->
                     <div class="cyber-debug-card group">
                         <div class="scanline"></div>
-                        <span class="cyber-label">04 // FIREWALL</span>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">防護牆攔截</h4>
+                        <span class="cyber-label">04 // Privacy Options</span>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">隱私設定</h4>
                         <p class="text-gray-400 text-xs leading-relaxed font-mono">
                             ACCESS_DENIED? <br>
-                            檢視防毒軟體日誌，確保連線程式與 Java 已加入通訊白名單。
+                            1.確認無連線節點跳動(客戶端)如已確認往下閱讀
+                            2.進入 Microsoft 檢查帳號設定
+                                 登入 Microsoft 網站 的隱私與線上安全分頁。
+                                 在「Xbox 和 Windows 10 裝置的線上安全」中，確認「您可以加入多人遊戲」設為「允許」。
                         </p>
                     </div>
                 </div>
