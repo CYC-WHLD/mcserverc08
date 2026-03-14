@@ -1,1 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>伺服器連線入口 </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- 引入字體與圖標庫 -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #8b5cf6;
+            --warning: #f59e0b;
+            --bg-dark: #020617;
+            --cyber-blue: #00d2ff;
+            --cyber-pink: #ff0055;
+            --cyber-yellow: #f0db4f;
+            --cyber-dark: #020205;
+        }
 
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-mono { font-family: "Share Tech Mono", monospace; }
+        .font-calligraphy { font-family: 'Ma Shan Zheng', cursive; }
+
+        #starfield-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 賽博龐克除錯卡片樣式 */
+        .cyber-debug-card {
+            position: relative;
+            background: rgba(10, 10, 15, 0.85);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .cyber-debug-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--cyber-yellow);
+            opacity: 0.5;
+        }
+
+        .cyber-debug-card:hover {
+            border-color: var(--cyber-yellow);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(240, 219, 79, 0.15);
+        }
+
+        .cyber-debug-card:hover::before {
+            opacity: 1;
+            box-shadow: 0 0 10px var(--cyber-yellow);
+        }
+
+        .cyber-label {
+            font-family: "Share Tech Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--cyber-yellow);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* 掃描線動畫 */
+        .scanline {
+            width: 100%;
+            height: 1px;
+            background: rgba(0, 210, 255, 0.1);
+            position: absolute;
+            bottom: 20%;
+            left: 0;
+            pointer-events: none;
+            animation: scanMove 4s linear infinite;
+        }
+
+        @keyframes scanMove {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .nav-container {
+            position: absolute;
+            top: 1.5rem;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            padding: 0 1rem;
+        }
+        
+        .nav-glass {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+        }
+
+        .step-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .copy-success {
+            animation: popText 1.2s ease-out forwards;
+        }
+        @keyframes popText {
+            0% { opacity: 0; transform: translateY(0); }
+            20% { opacity: 1; transform: translateY(-10px); }
+            80% { opacity: 1; transform: translateY(-10px); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        .infra-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* 頁尾樣式整合 */
+        .footer-brand {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 26px;
+            margin-bottom: 0.5rem;
+            opacity: 0.3;
+            text-align: center;
+            color: white;
+        }
+        .footer-text {
+            font-family: "Share Tech Mono", monospace;
+            font-size: 13.5px;
+            line-height: 1.4;
+            letter-spacing: 0.1em;
+            color: #374151;
+            max-width: 800px;
+            margin: 0 auto;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .footer-legal {
+            margin-top: 0.4rem;
+            opacity: 0.8; 
+            font-size: 11px;
+            color: #374151; 
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield-canvas"></canvas>
+
+    <!-- 導航欄：會隨頁面滾動消失 -->
+    <nav class="nav-container">
+        <div class="container mx-auto py-3 px-6 nav-glass flex justify-between items-center">
+            <!-- 返回鍵：更新為指定首頁連結 -->
+            <a href="https://cyc-whld.github.io/mcserverc08/index.html" class="text-white hover:text-[var(--cyber-blue)] transition-colors">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div class="font-calligraphy text-xl text-white md:text-2xl">
+                伺服器<span class="text-[var(--cyber-blue)] ml-1">連線入口</span>
+            </div>
+            <div class="font-mono text-[10px] text-blue-400 hidden md:block">
+                SYS_STATUS: <span class="animate-pulse">ONLINE</span>
+            </div>
+            <div class="font-mono text-[10px] text-blue-400 md:hidden">
+                <i class="fa-solid fa-signal animate-pulse"></i>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10">
+        <!-- 主入口區 -->
+        <section class="min-h-screen flex flex-col items-center justify-center px-4 pt-40 pb-20 md:px-8">
+            <div class="text-center mb-10 md:mb-16">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-400 mb-2 tracking-tighter">
+                    Server Connection
+                </h1>
+                <p class="text-[var(--cyber-blue)] font-mono text-xs md:text-sm tracking-[0.4em] uppercase opacity-80">
+                    MOUNTAIN MINECRAFT ADVANCED TECH
+                </p>
+                
+                <div class="flex flex-wrap justify-center gap-3 mt-8">
+                    <button class="px-5 py-1.5 rounded-full border border-[var(--cyber-blue)] text-[var(--cyber-blue)] text-[10px] font-bold uppercase bg-[var(--cyber-blue)]/10 hover:bg-[var(--cyber-blue)]/20 transition-all">
+                        連線節點概覽
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl w-full">
+                <!-- VPN 連線卡片 -->
+                <div class="glass-card p-6 md:p-8 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="step-badge">STEP 01</span>
+                            <i class="fa-solid fa-shield-halved text-blue-400/30"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold mb-2 text-white">Radmin VPN</h2>
+                        <p class="text-gray-400 text-sm mb-6">請先啟動 VPN 以進入區域網環境。</p>
+                        <div class="space-y-3">
+                            <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center active:bg-white/10 transition-all cursor-pointer" onclick="copyText('vpnUser', '帳號')">
+                                <div class="overflow-hidden">
+                                    <p class="text-[9px] text-gray-500 uppercase font-mono">Username</p>
+                                    <p class="font-mono text-blue-300 truncate" id="vpnUser">308MC_server</p>
+                                </div>
+                                <i class="fa-regular fa-copy text-gray-600"></i>
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center active:bg-white/10 transition-all cursor-pointer" onclick="copyText('vpnPass', '密碼')">
+                                <div class="overflow-hidden">
+                                    <p class="text-[9px] text-gray-500 uppercase font-mono">Password</p>
+                                    <p class="font-mono text-purple-300 truncate" id="vpnPass">000000</p>
+                                </div>
+                                <i class="fa-regular fa-copy text-gray-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 伺服器 IP 卡片 -->
+                <div class="glass-card p-6 md:p-8 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="step-badge">STEP 02</span>
+                            <i class="fa-solid fa-server text-green-400/30"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold mb-2 text-white">伺服器位址</h2>
+                        <p class="text-gray-400 text-sm mb-6">確認 VPN 已連接後，即可連線。</p>
+                        <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center active:bg-white/10 transition-all cursor-pointer" onclick="copyText('serverIp', '伺服器位址')">
+                            <div class="overflow-hidden">
+                                <p class="text-[9px] text-gray-500 uppercase font-mono">Server IP</p>
+                                <p class="font-mono text-green-300 truncate" id="serverIp">26.77.136.232</p>
+                            </div>
+                            <i class="fa-regular fa-copy text-gray-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 md:mt-24 flex flex-col items-center gap-4 text-gray-500">
+                <p class="text-[10px] tracking-widest uppercase font-mono">滾動以下滑</p>
+                <div class="w-px h-12 bg-gradient-to-b from-blue-500 to-transparent"></div>
+            </div>
+        </section>
+
+        <!-- 賽博龐克除錯區塊 -->
+        <section class="max-w-5xl mx-auto px-6 pb-32">
+            <div class="reveal mb-20">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-white/10 pb-6">
+                    <div>
+                        <span class="font-mono text-[var(--cyber-yellow)] text-xs tracking-widest block mb-2">// EMERGENCY PROTOCOLS</span>
+                        <h2 class="text-4xl md:text-5xl font-black italic tracking-tighter text-white uppercase">
+                            除錯程序<span class="text-[var(--cyber-yellow)]">診斷</span>
+                        </h2>
+                    </div>
+                    <div class="font-mono text-right hidden md:block">
+                        <p class="text-[10px] text-gray-500">ERROR_CODE: 0x88NF2</p>
+                        <p class="text-[10px] text-gray-500">LOC: NEBULA_CORE</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- 診斷項 01 -->
+                    <div class="cyber-debug-card group">
+                        <div class="scanline"></div>
+                        <span class="cyber-label">01 // TUNNEL</span>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">檢查 VPN 隧道</h4>
+                        <p class="text-gray-400 text-xs leading-relaxed font-mono">
+                            STATUS: OFFLINE? <br>
+                            確認狀態顯示為「已連線」。若隧道建立超時，請嘗試切換通訊協議 (UDP/TCP)。
+                        </p>
+                    </div>
+
+                    <!-- 診斷項 02 -->
+                    <div class="cyber-debug-card group">
+                        <div class="scanline"></div>
+                        <span class="cyber-label">02 // AUTH</span>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">憑證驗證</h4>
+                        <p class="text-gray-400 text-xs leading-relaxed font-mono">
+                            TOKEN_MISMATCH? <br>
+                            點擊上方卡片自動複製，嚴禁手動輸入以防字元遺漏或包含隱形空格。
+                        </p>
+                    </div>
+
+                    <!-- 診斷項 03 -->
+                    <div class="cyber-debug-card group">
+                        <div class="scanline"></div>
+                        <span class="cyber-label">03 // GATEWAY</span>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">網路出口測試</h4>
+                        <p class="text-gray-400 text-xs leading-relaxed font-mono">
+                            ROUTE_BLOCKED? <br>
+                            嘗試瀏覽網頁確認隧道通暢。若無法開啟任何頁面，請重啟行動數據或更換節點。
+                        </p>
+                    </div>
+
+                    <!-- 診斷項 04 -->
+                    <div class="cyber-debug-card group">
+                        <div class="scanline"></div>
+                        <span class="cyber-label">04 // FIREWALL</span>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">防護牆攔截</h4>
+                        <p class="text-gray-400 text-xs leading-relaxed font-mono">
+                            ACCESS_DENIED? <br>
+                            檢視防毒軟體日誌，確保連線程式與 Java 已加入通訊白名單。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 專業伺服器架構與託管方案 -->
+            <div class="reveal">
+                <div class="flex items-center gap-4 mb-10">
+                    <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/40">
+                        <i class="fa-solid fa-microchip text-blue-400"></i>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
+                        伺服器後端託管架構
+                    </h2>
+                </div>
+
+                <div class="infra-grid">
+                    <div class="glass-card p-6 relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 text-blue-500/10 scale-150">
+                            <i class="fa-solid fa-cloud text-6xl"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-blue-300 mb-3">虛擬專用伺服器 (VPS)</h4>
+                        <p class="text-gray-400 text-xs leading-relaxed mb-4 italic font-mono">INFRA_VIRTUALIZATION</p>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            採用高端實體伺服器切割出的獨立虛擬環境，提供固定的 IP 與高速連線能力，是專業 Minecraft 伺服器的首選。
+                        </p>
+                    </div>
+                    <div class="glass-card p-6 relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 text-purple-500/10 scale-150">
+                            <i class="fa-solid fa-shield-virus text-6xl"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-purple-300 mb-3">DDoS 流量防護</h4>
+                        <p class="text-gray-400 text-xs leading-relaxed mb-4 italic font-mono">TRAFFIC_CLEANING</p>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            位於節點前端的清洗中心，能夠過濾惡意攻擊封包，確保在遭受攻擊時，玩家連線依然保持極低延遲。
+                        </p>
+                    </div>
+                    <div class="glass-card p-6 relative overflow-hidden md:col-span-2">
+                        <h4 class="text-xl font-bold text-indigo-300 mb-3">分散式節點佈署 (Edge Computing)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 text-[10px] uppercase font-mono">
+                            <div class="p-3 border border-blue-500/30 rounded-lg bg-blue-500/5">
+                                <i class="fa-solid fa-bolt text-blue-400 mb-2 block"></i>
+                                <span class="text-blue-300 font-bold">自動備份系統</span>
+                                <p class="text-gray-500 mt-1">每 24 小時異地同步資料快照。</p>
+                            </div>
+                            <div class="p-3 border border-indigo-500/30 rounded-lg bg-indigo-500/5">
+                                <i class="fa-solid fa-gauge-high text-indigo-400 mb-2 block"></i>
+                                <span class="text-indigo-300 font-bold">負載平衡器</span>
+                                <p class="text-gray-500 mt-1">根據流量自動分配運算資源。</p>
+                            </div>
+                            <div class="p-3 border border-purple-500/30 rounded-lg bg-purple-500/5">
+                                <i class="fa-solid fa-database text-purple-400 mb-2 block"></i>
+                                <span class="text-purple-300 font-bold">極速 SSD 陣列</span>
+                                <p class="text-gray-500 mt-1">NVMe 陣列提供極高的讀寫效能。</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed mt-4">
+                            透過全球多節點佈署，伺服器能選擇最優路徑傳輸封包，有效解決跨國連線產生的掉封包問題。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 頁尾浮水印模塊 -->
+        <footer class="py-12 border-t border-white/5 bg-[#030307]">
+            <div class="container mx-auto px-4">
+                <div class="footer-brand">
+                    山岳<span style="color: var(--cyber-blue);">礦工藝</span>
+                </div>
+                
+                <div class="footer-text">
+                    Copyright © 2026 山岳礦工藝團隊. All rights reserved.<br>
+                    Website developed by Inperial Storm. Server functions by Itsuki_Iridium.
+                    
+                    <div class="footer-legal">
+                        NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG.
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <div id="copy-notify" class="fixed inset-0 pointer-events-none flex items-center justify-center z-[2000]"></div>
+
+    <script>
+        let scene, camera, renderer, stars, wormhole;
+        let mouseX = 0, mouseY = 0;
+        
+        function initSpace() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('starfield-canvas'),
+                antialias: false, 
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const isMobile = window.innerWidth < 768;
+
+            const starCount = isMobile ? 1500 : 4000;
+            const starGeometry = new THREE.BufferGeometry();
+            const starPositions = new Float32Array(starCount * 3);
+            for (let i = 0; i < starCount; i++) {
+                starPositions[i * 3] = (Math.random() - 0.5) * 25;
+                starPositions[i * 3 + 1] = (Math.random() - 0.5) * 25;
+                starPositions[i * 3 + 2] = (Math.random() - 0.5) * 25;
+            }
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+            stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.012, transparent: true, opacity: 0.4 }));
+            scene.add(stars);
+
+            const wormholeParticleCount = isMobile ? 4000 : 12000;
+            const wormholeGeo = new THREE.TorusGeometry(3.5, 1.2, 40, 120);
+            const wormholePos = wormholeGeo.attributes.position.array;
+            const wormholeFinalPositions = new Float32Array(wormholeParticleCount * 3);
+            for (let i = 0; i < wormholeParticleCount; i++) {
+                const idx = Math.floor(Math.random() * (wormholePos.length / 3));
+                wormholeFinalPositions[i * 3] = wormholePos[idx * 3] + (Math.random() - 0.5) * 0.1;
+                wormholeFinalPositions[i * 3 + 1] = wormholePos[idx * 3 + 1] + (Math.random() - 0.5) * 0.1;
+                wormholeFinalPositions[i * 3 + 2] = wormholePos[idx * 3 + 2] + (Math.random() - 0.5) * 0.1;
+            }
+            const wormholeBufferGeo = new THREE.BufferGeometry();
+            wormholeBufferGeo.setAttribute('position', new THREE.BufferAttribute(wormholeFinalPositions, 3));
+            wormhole = new THREE.Points(wormholeBufferGeo, new THREE.PointsMaterial({ color: 0x3b82f6, size: 0.008, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending }));
+            wormhole.rotation.x = Math.PI / 1.8;
+            scene.add(wormhole);
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0003;
+            wormhole.rotation.z += 0.0025;
+            const time = Date.now() * 0.0008;
+            wormhole.scale.set(1 + Math.sin(time) * 0.08, 1 + Math.sin(time) * 0.08, 1 + Math.sin(time) * 0.08);
+            camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+            renderer.render(scene, camera);
+        }
+
+        const updatePointer = (x, y) => {
+            mouseX = (x - window.innerWidth / 2) / window.innerWidth;
+            mouseY = (y - window.innerHeight / 2) / window.innerHeight;
+        };
+        window.addEventListener('mousemove', (e) => updatePointer(e.clientX, e.clientY));
+        window.addEventListener('touchmove', (e) => { if (e.touches.length > 0) updatePointer(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function copyText(elementId, label) {
+            const text = document.getElementById(elementId).innerText;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            const notify = document.getElementById('copy-notify');
+            const div = document.createElement('div');
+            div.className = 'copy-success text-blue-400 font-bold bg-slate-900/90 backdrop-blur-xl px-6 py-3 rounded-full border border-blue-500/40 text-sm shadow-2xl';
+            div.innerText = `${label} 已複製`;
+            notify.appendChild(div);
+            setTimeout(() => div.remove(), 1200);
+        }
+
+        function reveal() {
+            const reveals = document.querySelectorAll(".reveal");
+            const triggerBottom = window.innerHeight * 0.9;
+            reveals.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                if (elementTop < triggerBottom) el.classList.add("active");
+            });
+        }
+        window.addEventListener("scroll", reveal, { passive: true });
+        window.onload = () => { initSpace(); reveal(); };
+    </script>
+</body>
+</html>
