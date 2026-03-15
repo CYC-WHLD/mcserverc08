@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>礦工藝資源庫 CENTRAL CONTROL PANEL</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Three.js 核心與軌道控制器 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            background-color: #010101;
+            color: #00f3ff;
+            font-family: 'Share+Tech+Mono', monospace;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        .crt-overlay {
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.01));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 100;
+        }
+
+        .panel-border {
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            background: rgba(0, 5, 10, 0.98);
+        }
+
+        .key {
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            background: linear-gradient(180deg, #151515 0%, #050505 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 2px;
+            cursor: pointer;
+            color: rgba(0, 243, 255, 0.5);
+            transition: all 0.05s;
+        }
+        .key:hover {
+            background: #00f3ff;
+            color: #000;
+            box-shadow: 0 0 10px #00f3ff;
+        }
+        .key i {
+            font-size: 16px;
+        }
+
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 15px 15px;
+        }
+
+        .radar-blip {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff3300;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff3300;
+            animation: blip-fade 3s infinite;
+        }
+
+        @keyframes blip-fade {
+            0% { opacity: 0; transform: scale(0.5); }
+            10% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #00f3ff; }
+
+        .file-item {
+            padding: 10px 6px;
+            font-size: 12px;
+            transition: background-color 0.3s ease;
+        }
+        .file-item svg {
+            width: 22px;
+            height: 22px;
+        }
+        /* 高亮样式 - 用于搜索结果 */
+        .file-item.highlight {
+            background: #ffaa33 !important;
+            color: #000;
+            border-color: #ffdd44;
+            box-shadow: 0 0 15px #ffaa33;
+        }
+
+        .shield-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            padding: 6px 0;
+        }
+        .shield-item {
+            text-align: center;
+            flex: 1;
+        }
+        .shield-item .value {
+            font-size: 1.6rem;
+            line-height: 1.3;
+        }
+        .shield-item .label {
+            font-size: 10px;
+            opacity: 0.6;
+        }
+
+        #bio-ultrasound {
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        #console-out {
+            font-size: 12px;
+        }
+
+        /* 頂部標題欄 (置中) */
+        .title-bar {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            width: calc(100% - 32px);
+            max-width: 1400px;
+            height: 48px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid #ffffff20;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            z-index: 200;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        .title-bar i {
+            font-size: 28px;
+            color: #ffffff;
+            margin-right: 12px;
+            filter: none;
+        }
+        .title-bar span {
+            font-size: 1.4rem;
+            letter-spacing: 4px;
+            color: #ffffff;
+            font-weight: 500;
+            text-shadow: none;
+        }
+
+        .attitude-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .section-title {
+            font-size: 11px !important;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 1024px) {
+            .title-bar span { font-size: 1.2rem; letter-spacing: 2px; }
+            .title-bar i { font-size: 24px; }
+            .key { font-size: 12px; }
+            .key i { font-size: 14px; }
+            .file-item { font-size: 10px; padding: 8px 4px; }
+            .file-item svg { width: 18px; height: 18px; }
+            .shield-item .value { font-size: 1.3rem; }
+        }
+        @media (max-width: 768px) {
+            main { flex-direction: column; }
+            .w-72 { width: 100%; border-right: none; border-bottom: 1px solid #00f3ff33; }
+            .central-panel { height: 60vh; }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col">
+    <div class="crt-overlay"></div>
+
+    <!-- 頂部標題欄 -->
+    <div class="title-bar">
+        <i class="fas fa-microchip"></i>
+        <span> 礦 工 藝 資 源 庫 控 制 面 板  </span>
+        <i class="fas fa-microchip"></i>
+    </div>
+
+    <header class="h-10 border-b border-cyan-900/50 flex items-center justify-between px-6 bg-black z-50" style="margin-top: 60px;">
+        <div class="text-sm font-bold tracking-[0.5em]">礦工藝資源庫</div>
+        <div id="clock" class="text-[20px] opacity-70">00:00:00</div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden">
+        <!-- 左側面板 -->
+        <aside class="w-72 border-r border-cyan-900/50 flex flex-col p-3 space-y-3 bg-black z-40">
+            <div class="h-48 panel-border relative bg-black">
+                <div class="absolute top-2 left-2 text-[13px] font-bold text-cyan-500 z-10">AI智體投影</div>
+                <div id="ai-core-container" class="w-full h-full"></div>
+                <div class="absolute bottom-1 left-2 text-[12px] opacity-40" id="ai-status">STATUS: STABLE</div>
+            </div>
+
+            <div class="h-24 panel-border p-2 flex flex-col grid-bg">
+                <div class="section-title">SIGNAL (雷達函數圖)</div>
+                <svg class="flex-1 w-full" viewBox="0 0 200 100" preserveAspectRatio="none">
+                    <line x1="0" y1="50" x2="200" y2="50" stroke="#00f3ff" stroke-width="0.5" opacity="0.3" />
+                    <line x1="0" y1="0" x2="0" y2="100" stroke="#00f3ff" stroke-width="0.5" opacity="0.3" />
+                    <text x="190" y="45" fill="#00f3ff" font-size="8" opacity="0.7">X</text>
+                    <text x="5" y="10" fill="#00f3ff" font-size="8" opacity="0.7">Y</text>
+                    <path id="wavepath" fill="none" stroke="#00f3ff" stroke-width="1.5" d="M0 50 L 200 50" />
+                </svg>
+            </div>
+
+            <div class="h-24 panel-border p-1 flex flex-col">
+                <div class="section-title">BIO ULTRASOUND MONITOR</div>
+                <canvas id="bio-ultrasound" class="w-full h-full"></canvas>
+            </div>
+
+            <div class="flex-1 panel-border p-2 flex flex-col overflow-hidden">
+                <div id="console-out" class="flex-1 overflow-y-auto custom-scrollbar font-mono text-cyan-500 space-y-1">
+                    <div>> DECODE SYSTEM INITIALIZED...</div>
+                </div>
+                <div class="h-7 border-t border-cyan-900/50 flex items-center px-2 mt-2">
+                    <input type="text" id="cmd-input" class="bg-transparent border-none outline-none flex-1 text-cyan-200 text-[12px]" placeholder=">_ 搜尋檔案名稱...">
+                </div>
+            </div>
+        </aside>
+
+        <!-- 中央主視圖 -->
+        <section class="flex-1 relative flex flex-col bg-black overflow-hidden">
+            <div id="radar-ui" class="absolute top-4 left-4 w-32 h-32 panel-border rounded-full z-50 overflow-hidden flex items-center justify-center bg-black/80">
+                <div class="absolute inset-0 grid-bg opacity-10"></div>
+                <div class="w-24 h-24 rounded-full border border-cyan-500/20 relative">
+                    <div class="absolute top-1/2 left-1/2 w-[2px] h-14 bg-cyan-400 origin-top animate-[spin_3s_linear_infinite] shadow-[0_0_8px_cyan]"></div>
+                </div>
+                <div class="absolute bottom-1 text-[8px] opacity-50">SECTOR RADAR</div>
+            </div>
+
+            <div id="solar-system-container" class="h-3/5"></div>
+            
+            <div class="h-2/5 border-t border-cyan-900/50 bg-black flex flex-col z-40">
+                <div class="h-1/3 p-2 flex space-x-3">
+                    <div class="flex-1 panel-border p-2 overflow-hidden text-[16px] flex flex-col">
+                        <div class="text-cyan-600 font-bold mb-1 border-b border-cyan-900/30 flex justify-between">
+                            <span>STATION ATTITUDE</span>
+                            <span id="attitude-time">2026</span>
+                        </div>
+                        <div class="attitude-container flex-1">
+                            <div class="grid grid-cols-3 gap-2 text-[11px]">
+                                <div class="flex flex-col items-center">
+                                    <span class="opacity-60">PITCH</span>
+                                    <span id="pitch-val" class="text-xl font-bold">0.0°</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <span class="opacity-60">YAW</span>
+                                    <span id="yaw-val" class="text-xl font-bold">0.0°</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <span class="opacity-60">ROLL</span>
+                                    <span id="roll-val" class="text-xl font-bold">0.0°</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-48 panel-border flex flex-col items-center justify-center py-1">
+                        <div class="shield-row">
+                            <div class="shield-item">
+                                <div id="shield-val" class="value">99%</div>
+                                <div class="label">SHIELD</div>
+                            </div>
+                            <div class="shield-item">
+                                <div id="integrity-val" class="value">100%</div>
+                                <div class="label">INTEGRITY</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 鍵盤區域 -->
+                <div id="keyboard" class="flex-1 p-2 flex flex-col gap-1">
+                    <!-- JS 生成鍵盤 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 右側面板 -->
+        <aside class="w-72 border-l border-cyan-900/50 flex flex-col p-3 bg-black z-40">
+            <div class="text-[16px] font-bold border-b border-cyan-900 pb-2 mb-3">FILE DATABASE 檔案資源庫</div>
+            <div id="db-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-1">
+                <!-- 20個檔案條目由 JS 生成 -->
+            </div>
+        </aside>
+    </main>
+
+    <footer class="h-6 border-t border-cyan-900/50 bg-black flex items-center justify-between px-4 text-[16px] opacity-40">
+        <div>WEBSITE SIGN : YUNCHI 3D TEST WEB </div>
+        <div id="coords">X: 0.0 Y: 0.0 Z: 0.0</div>
+    </footer>
+
+    <script>
+        // ==================== 鍵盤配置 ====================
+        const keyboardLayout = [
+            // 第一行：ESC, `, 數字, 符號, BACKSPACE
+            { type: 'row', keys: [
+                { text: 'ESC' },
+                { text: '`' },
+                { text: '1' }, { text: '2' }, { text: '3' }, { text: '4' }, { text: '5' },
+                { text: '6' }, { text: '7' }, { text: '8' }, { text: '9' }, { text: '0' },
+                { text: '-' }, { text: '=' },
+                { text: 'BACKSPACE', flex: 1.5 }
+            ]},
+            // 第二行：TAB, Q-P, [, ], \
+            { type: 'row', keys: [
+                { text: 'TAB', flex: 1.5 },
+                { text: 'Q' }, { text: 'W' }, { text: 'E' }, { text: 'R' }, { text: 'T' },
+                { text: 'Y' }, { text: 'U' }, { text: 'I' }, { text: 'O' }, { text: 'P' },
+                { text: '[' }, { text: ']' }, { text: '\\' }
+            ]},
+            // 第三行：CAPS, A-L, 方向鍵
+            { type: 'row', keys: [
+                { text: 'CAPS', flex: 1.5 },
+                { text: 'A' }, { text: 'S' }, { text: 'D' }, { text: 'F' }, { text: 'G' },
+                { text: 'H' }, { text: 'J' }, { text: 'K' }, { text: 'L' },
+                { text: '.' }, { icon: 'fa-arrow-up', text: '↑' },
+                { text: '/' },
+                { text: 'ENTER', flex: 2 }
+            ]},
+            // 第四行：SHIFT, Z-M, 方向鍵
+            { type: 'row', keys: [
+                { text: 'SHIFT', flex: 1.5 },
+                { text: 'Z' }, { text: 'X' }, { text: 'C' }, { text: 'V' }, { text: 'B' },
+                { text: 'N' }, { text: 'M' },
+                { text: '?' }, 
+                { icon: 'fa-arrow-left', text: '←' },
+                { icon: 'fa-arrow-down', text: '↓' },
+                { icon: 'fa-arrow-right', text: '→' },
+                { text: 'SHIFT', flex: 1.5 }
+            ]},
+            // 第五行：CTRL, CMD, SPACE, 房屋圖示 (HOME)
+            { type: 'row', keys: [
+                { text: 'CTRL', flex: 0.6 },
+                { text: 'CMD', flex: 0.6 },
+                { text: 'WIN', flex: 0.6 },
+                { text: 'ALT', flex: 0.6 },
+                { text: 'SPACE', flex: 4 },
+                { text: 'ALT', flex: 0.6 },
+                { text: 'Fn', flex: 0.6 },
+                { icon: 'fa-home', text: 'HOME', flex: 0.4 }
+            ]}
+        ];
+
+        // 檔案列表資料
+        const fileNames = [
+            'for308-3-8b.zip', 'for308-3-13b.zip', '即將上線', 'mining_log.dat', 'asteroid_map.png',
+            'refinery_core.bin', 'shield_matrix.img', 'cargo_manifest.mp4', 'fuel_ratio.svg', 'drone_status.pdf',
+            'hull_stress.txt', 'life_support.csv', 'nav_compass.js', 'gravity_raw.raw', 'mineral_scan.zip',
+            'quantum_key.qc', 'station_db.sql', 'thruster_diag.bmp', 'comms_flux.cfg', 'reactor_node.exe'
+        ];
+
+        // Google Drive 下載直鏈 (前兩個檔案)
+        const driveLinks = [
+            'https://drive.google.com/uc?export=download&id=1o8tnpSzjqq-HaHPLxrsv7KxGmNapnXCO', // for308-3-8b.zip
+            'https://drive.google.com/uc?export=download&id=17q61GwuJf_TY1bnBNJ0nssVIE5GLLf0Z'  // for308-3-13b.zip
+        ];
+
+        // 計時器 ID，用於自動清除高亮
+        let highlightTimer = null;
+
+        // ==================== UI 初始化 ====================
+        function initUI() {
+            const kb = document.getElementById('keyboard');
+            keyboardLayout.forEach(row => {
+                const rowEl = document.createElement('div');
+                rowEl.className = "flex gap-1 flex-1";
+                row.keys.forEach(key => {
+                    const keyEl = document.createElement('div');
+                    keyEl.className = "key";
+                    keyEl.style.flex = key.flex || 1;
+                    
+                    if (key.icon) {
+                        const icon = document.createElement('i');
+                        icon.className = `fas ${key.icon}`;
+                        keyEl.appendChild(icon);
+                        keyEl.setAttribute('data-key', key.text);
+                    } else {
+                        keyEl.textContent = key.text;
+                    }
+                    rowEl.appendChild(keyEl);
+                });
+                kb.appendChild(rowEl);
+            });
+
+            // 按鍵點擊處理
+            const keys = document.querySelectorAll('.key');
+            const cmdInput = document.getElementById('cmd-input');
+            keys.forEach(key => {
+                key.addEventListener('click', () => {
+                    let keyText = key.textContent.trim();
+                    const icon = key.querySelector('i');
+                    if (icon) {
+                        if (icon.classList.contains('fa-arrow-left')) keyText = '←';
+                        else if (icon.classList.contains('fa-arrow-up')) keyText = '↑';
+                        else if (icon.classList.contains('fa-arrow-right')) keyText = '→';
+                        else if (icon.classList.contains('fa-arrow-down')) keyText = '↓';
+                        else if (icon.classList.contains('fa-home')) {
+                            window.open('https://cyc-whld.github.io/mcserverc08/index', '_blank');
+                            return;
+                        }
+                    }
+                    switch (keyText) {
+                        case 'BACKSPACE': cmdInput.value = cmdInput.value.slice(0, -1); break;
+                        case 'SPACE': cmdInput.value += ' '; break;
+                        case 'ENTER': cmdInput.value += '\n'; break;
+                        case 'TAB': cmdInput.value += '\t'; break;
+                        case 'SHIFT': case 'CTRL': case 'CMD': case 'CAPS': case 'ESC': break;
+                        default: cmdInput.value += keyText;
+                    }
+                });
+            });
+
+            // 右側檔案列表
+            const db = document.getElementById('db-list');
+            for (let i = 1; i <= 20; i++) {
+                const item = document.createElement('div');
+                item.className = "file-item border border-cyan-900/30 bg-cyan-950/10 flex justify-between items-center group";
+                let downloadIcon = '';
+                let fileStatus = '';
+                if (i <= 3) {
+                    downloadIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>`;
+                    fileStatus = fileNames[i-1];
+                } else {
+                    downloadIcon = `<i class="fas fa-ban" style="color: #ff3366; font-size: 16px;"></i>`;
+                    fileStatus = 'NO FILE';
+                }
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00f3ff" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span class="text-[12px] font-bold">${fileStatus}</span>
+                    </div>
+                    <div class="cursor-pointer hover:text-white download-btn" data-index="${i-1}">
+                        ${downloadIcon}
+                    </div>
+                `;
+                db.appendChild(item);
+            }
+
+            // 下載按鈕事件
+            document.querySelectorAll('.download-btn').forEach((btn, idx) => {
+                if (idx < 2) { // 前兩個檔案使用真實連結
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const fileIndex = parseInt(btn.dataset.index);
+                        // 使用 Google Drive 直鏈下載
+                        window.location.href = driveLinks[fileIndex];
+                        addConsoleLog(`> DOWNLOAD: ${fileNames[fileIndex]} -> REDIRECTING TO DRIVE...`);
+                    });
+                } else if (idx === 2) { // 第三個檔案維持模擬下載
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const fileIndex = parseInt(btn.dataset.index);
+                        downloadMockFile(fileIndex);
+                    });
+                } else {
+                    btn.style.cursor = 'not-allowed';
+                }
+            });
+
+            // 雷達光點
+            const radar = document.querySelector('#radar-ui .w-24');
+            setInterval(() => {
+                const blip = document.createElement('div');
+                blip.className = 'radar-blip';
+                blip.style.left = Math.random() * 100 + '%';
+                blip.style.top = Math.random() * 100 + '%';
+                radar.appendChild(blip);
+                setTimeout(() => blip.remove(), 3000);
+            }, 1500);
+
+            // 搜尋功能：監聽 cmd-input 的回車事件
+            cmdInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const keyword = cmdInput.value.trim();
+                    searchFilesByNumberSequence(keyword);
+                }
+            });
+        }
+
+        /**
+         * 根據數字序列搜尋檔案
+         * @param {string} sequence - 輸入的數字序列 (例如 "38", "313")
+         */
+        function searchFilesByNumberSequence(sequence) {
+            const items = document.querySelectorAll('#db-list .file-item');
+            
+            // 清除之前的計時器
+            if (highlightTimer) {
+                clearTimeout(highlightTimer);
+            }
+
+            // 移除所有高亮
+            items.forEach(item => item.classList.remove('highlight'));
+
+            // 如果序列為空，結束
+            if (!sequence) return;
+
+            // 將輸入轉換為字元陣列，過濾非數字
+            const digits = sequence.split('').filter(char => '0123456789'.includes(char));
+            if (digits.length === 0) return;
+
+            items.forEach(item => {
+                const nameSpan = item.querySelector('span');
+                if (!nameSpan) return;
+
+                const fileName = nameSpan.textContent;
+                
+                // 檢查檔案名稱是否依序包含所有數字
+                let searchIndex = 0;
+                for (let i = 0; i < fileName.length; i++) {
+                    if (fileName[i] === digits[searchIndex]) {
+                        searchIndex++;
+                        if (searchIndex === digits.length) {
+                            // 找到完整序列
+                            item.classList.add('highlight');
+                            break;
+                        }
+                    }
+                }
+            });
+
+            // 設定 5 秒後清除高亮
+            highlightTimer = setTimeout(() => {
+                items.forEach(item => item.classList.remove('highlight'));
+                highlightTimer = null;
+            }, 5000);
+        }
+
+        // 模擬下載 (用於第三個以後的檔案)
+        function downloadMockFile(fileIndex) {
+            const file = fileNames[fileIndex];
+            const content = `SAMPLE: ${file}\nID: ${fileIndex+1}\nPURITY: ${(70+Math.random()*20).toFixed(1)}%`;
+            const blob = new Blob([content], {type: 'application/octet-stream'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `node_${fileIndex+1}_data.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+            addConsoleLog(`> DOWNLOAD: NODE_${fileIndex+1} -> MOCK FILE`);
+        }
+
+        function addConsoleLog(msg) {
+            const consoleOut = document.getElementById('console-out');
+            const logLine = document.createElement('div');
+            logLine.textContent = msg;
+            consoleOut.appendChild(logLine);
+            if (consoleOut.children.length > 12) consoleOut.removeChild(consoleOut.children[0]);
+            consoleOut.scrollTop = consoleOut.scrollHeight;
+        }
+
+        // ==================== 太陽系模型 ====================
+        function initUniverse() {
+            const container = document.getElementById('solar-system-container');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x010101);
+
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 20, 50);
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.autoRotate = false;
+            controls.enableZoom = true;
+            controls.maxDistance = 200;
+
+            const sunLight = new THREE.PointLight(0xffaa66, 2, 0, 0);
+            sunLight.position.set(0, 0, 0);
+            scene.add(sunLight);
+            scene.add(new THREE.AmbientLight(0x404060));
+
+            function createPlanetTexture(baseColor, hasStripes = false, stripeColor = 0xccaa88) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#' + baseColor.toString(16).padStart(6, '0');
+                ctx.fillRect(0, 0, 64, 64);
+                if (hasStripes) {
+                    ctx.fillStyle = '#' + stripeColor.toString(16).padStart(6, '0');
+                    for (let i = 0; i < 8; i++) ctx.fillRect(0, i * 8, 64, 2);
+                }
+                for (let i = 0; i < 50; i++) ctx.fillRect(Math.floor(Math.random()*64), Math.floor(Math.random()*64), 1, 1);
+                return new THREE.CanvasTexture(canvas);
+            }
+
+            const sunGeo = new THREE.SphereGeometry(2.5, 64, 64);
+            const sunMat = new THREE.MeshStandardMaterial({ color: 0xffdd99, emissive: 0xff5500, map: createPlanetTexture(0xffdd99) });
+            const sun = new THREE.Mesh(sunGeo, sunMat);
+            scene.add(sun);
+
+            const planetsData = [
+                { name: 'Mercury', size: 0.3, dist: 4.5, color: 0xaaaaaa, speed: 2.99, hasRing: false, stripe: false, rotSpeed: 0.02, tilt: 0.1 },
+                { name: 'Venus', size: 0.5, dist: 6.5, color: 0xffcc88, speed: 2.1, hasRing: false, stripe: false, rotSpeed: 0.015, tilt: 0.2 },
+                { name: 'Earth', size: 0.55, dist: 8.5, color: 0x2288ff, speed: 1.8, hasRing: false, stripe: false, rotSpeed: 0.025, tilt: 0.3 },
+                { name: 'Mars', size: 0.45, dist: 10.5, color: 0xff6633, speed: 1.4, hasRing: false, stripe: false, rotSpeed: 0.03, tilt: 0.15 },
+                { name: 'Jupiter', size: 1.2, dist: 14, color: 0xddbb99, speed: 0.8, hasRing: false, stripe: true, stripeColor: 0xccaa88, rotSpeed: 0.04, tilt: 0.05 },
+                { name: 'Saturn', size: 1.0, dist: 18, color: 0xeeddbb, speed: 0.5, hasRing: true, ringColor: 0xccaa88, ringOpacity: 0.5, rotSpeed: 0.035, tilt: 0.25 },
+                { name: 'Uranus', size: 0.9, dist: 22, color: 0x88ccff, speed: 0.3, hasRing: true, ringColor: 0xaaccff, ringOpacity: 0.1, rotSpeed: 0.028, tilt: 0.6 },
+                { name: 'Neptune', size: 0.9, dist: 26, color: 0x3366ff, speed: 0.2, hasRing: true, ringColor: 0x88aaff, ringOpacity: 0.1, rotSpeed: 0.032, tilt: 0.4 }
+            ];
+
+            const planetMeshes = [];
+            const satellites = [];
+            const artificialSatellites = [];
+
+            planetsData.forEach((p, idx) => {
+                const geo = new THREE.SphereGeometry(p.size, 64, 64);
+                const texture = createPlanetTexture(p.color, p.stripe, p.stripeColor);
+                const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: texture, emissive: 0x111111 });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.userData = { dist: p.dist, speed: p.speed, rotSpeed: p.rotSpeed, angle: Math.random() * 2 * Math.PI, index: idx };
+                mesh.rotation.x = p.tilt;
+                mesh.rotation.z = p.tilt * 0.5;
+                scene.add(mesh);
+                planetMeshes.push(mesh);
+
+                const orbitPoints = [];
+                for (let i = 0; i <= 64; i++) {
+                    const angle = (i / 64) * Math.PI * 2;
+                    orbitPoints.push(new THREE.Vector3(p.dist * Math.cos(angle), 0, p.dist * Math.sin(angle)));
+                }
+                const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+                const orbitMat = new THREE.LineBasicMaterial({ color: 0x88aaff, opacity: 0.15, transparent: true });
+                const orbitLine = new THREE.LineLoop(orbitGeo, orbitMat);
+                scene.add(orbitLine);
+
+                if (p.hasRing) {
+                    const ringGeo = new THREE.TorusGeometry(p.size * 1.5, p.size * 0.1, 16, 100);
+                    const ringMat = new THREE.MeshStandardMaterial({ color: p.ringColor, emissive: 0x111111, transparent: true, opacity: p.ringOpacity, side: THREE.DoubleSide });
+                    const ring = new THREE.Mesh(ringGeo, ringMat);
+                    ring.rotation.x = Math.PI / 2;
+                    ring.rotation.z = 0.2;
+                    mesh.add(ring);
+                }
+            });
+
+            // 月球
+            const moonGeo = new THREE.SphereGeometry(0.15, 16, 16);
+            const moonMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+            const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+            satellites.push({ mesh: moonMesh, planetIndex: 2, dist: 1.2, speed: 2.5, angle: Math.random() * 2 * Math.PI });
+            scene.add(moonMesh);
+
+            // 太空站
+            const stationGroup = new THREE.Group();
+            const mainBody = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.2), new THREE.MeshStandardMaterial({ color: 0xcccccc }));
+            stationGroup.add(mainBody);
+            const solarPanel1 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.8), new THREE.MeshStandardMaterial({ color: 0x3366ff }));
+            solarPanel1.position.set(0, 0, 0.5);
+            stationGroup.add(solarPanel1);
+            const solarPanel2 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.8), new THREE.MeshStandardMaterial({ color: 0x3366ff }));
+            solarPanel2.position.set(0, 0, -0.5);
+            stationGroup.add(solarPanel2);
+            artificialSatellites.push({ mesh: stationGroup, planetIndex: 2, dist: 2.8, speed: 0.8, angle: Math.random() * 2 * Math.PI });
+            scene.add(stationGroup);
+
+            // 小行星帶
+            const asteroidCount = 2000;
+            const asteroidGeo = new THREE.BufferGeometry();
+            const positions = new Float32Array(asteroidCount * 3);
+            for (let i = 0; i < asteroidCount; i++) {
+                const r = 12 + Math.random() * 2.5;
+                const theta = Math.random() * 2 * Math.PI;
+                const y = (Math.random() - 0.5) * 1.5;
+                positions[i*3] = Math.cos(theta) * r;
+                positions[i*3+1] = y;
+                positions[i*3+2] = Math.sin(theta) * r;
+            }
+            asteroidGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const asteroidMat = new THREE.PointsMaterial({ color: 0xaa9977, size: 0.1 });
+            const asteroids = new THREE.Points(asteroidGeo, asteroidMat);
+            scene.add(asteroids);
+
+            const clock = new THREE.Clock();
+            function animate() {
+                requestAnimationFrame(animate);
+                const delta = clock.getDelta();
+
+                planetMeshes.forEach(mesh => {
+                    const data = mesh.userData;
+                    data.angle += data.speed * delta * 0.8;
+                    mesh.position.x = Math.cos(data.angle) * data.dist;
+                    mesh.position.z = Math.sin(data.angle) * data.dist;
+                    mesh.rotation.y += data.rotSpeed * delta * 10;
+                });
+
+                satellites.forEach(sat => {
+                    const planet = planetMeshes[sat.planetIndex];
+                    if (!planet) return;
+                    sat.angle += sat.speed * delta * 2;
+                    sat.mesh.position.x = planet.position.x + Math.cos(sat.angle) * sat.dist;
+                    sat.mesh.position.z = planet.position.z + Math.sin(sat.angle) * sat.dist;
+                });
+
+                artificialSatellites.forEach(sat => {
+                    const planet = planetMeshes[sat.planetIndex];
+                    if (!planet) return;
+                    sat.angle += sat.speed * delta * 3;
+                    sat.mesh.position.x = planet.position.x + Math.cos(sat.angle) * sat.dist;
+                    sat.mesh.position.z = planet.position.z + Math.sin(sat.angle) * sat.dist;
+                    if (sat.mesh === stationGroup) stationGroup.rotation.y += 0.02;
+                });
+
+                asteroids.rotation.y += 0.0005;
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        // ==================== AI 核心 ====================
+        function initAI() {
+            const container = document.getElementById('ai-core-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            const core = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.3, 100, 16), new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true }));
+            scene.add(core);
+            camera.position.z = 5;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                core.rotation.y += 0.02;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // ==================== 數據流更新 ====================
+        function startDataFeed() {
+            const consoleOut = document.getElementById('console-out');
+            const wavePath = document.getElementById('wavepath');
+            const bioCanvas = document.getElementById('bio-ultrasound');
+            const ctx = bioCanvas.getContext('2d');
+            let angle = 0;
+
+            setInterval(() => {
+                angle = (Date.now() / 1000) * (2 * Math.PI / 3);
+
+                let d = "M0 50 ";
+                for (let i = 0; i <= 20; i++) {
+                    const x = i * 10;
+                    const y = 50 + Math.sin(x * 0.03 + angle) * 20 + Math.cos(x * 0.02 + angle * 2) * 10;
+                    d += ` L${x} ${y}`;
+                }
+                wavePath.setAttribute('d', d);
+
+                const w = bioCanvas.width, h = bioCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = '#00f3ff20';
+                ctx.fillRect(0, 0, w, h);
+                const barCount = 20;
+                const barWidth = w / barCount;
+                for (let i = 0; i < barCount; i++) {
+                    const barHeight = 4 + Math.random() * (h - 8);
+                    ctx.fillStyle = '#00f3ff';
+                    ctx.fillRect(i * barWidth + 2, h - barHeight, barWidth - 4, barHeight - 2);
+                }
+
+                const hex = Math.random().toString(16).toUpperCase().substring(2, 14);
+                const logLine = document.createElement('div');
+                logLine.textContent = `> DECODE: [${hex}] -> SUCCESS`;
+                consoleOut.appendChild(logLine);
+                if (consoleOut.children.length > 12) consoleOut.removeChild(consoleOut.children[0]);
+                consoleOut.scrollTop = consoleOut.scrollHeight;
+
+                document.getElementById('pitch-val').textContent = (Math.random() * 30 - 15).toFixed(1) + '°';
+                document.getElementById('yaw-val').textContent = (Math.random() * 180 - 90).toFixed(1) + '°';
+                document.getElementById('roll-val').textContent = (Math.random() * 45 - 22.5).toFixed(1) + '°';
+                
+                const shield = Math.floor(70 + Math.random() * 29);
+                const integrity = Math.floor(85 + Math.random() * 15);
+                document.getElementById('shield-val').textContent = shield + '%';
+                document.getElementById('integrity-val').textContent = integrity + '%';
+                
+                document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
+                // 在 年月日函數
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                document.getElementById('attitude-time').textContent = `${year}-${month}-${day}`;
+
+                document.getElementById('coords').textContent = `X: ${(Math.random()*100).toFixed(1)} Y: ${(Math.random()*100).toFixed(1)} Z: ${(Math.random()*100).toFixed(1)}`;
+            }, 200);
+        }
+
+        window.onload = () => {
+            initUI();
+            initUniverse();
+            initAI();
+            startDataFeed();
+        };
+    </script>
+</body>
+</html>
