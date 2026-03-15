@@ -1,1 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山岳礦工藝|檔案庫</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-dark: #050507;
+            --cyan-glow: rgba(6, 182, 212, 0.4);
+            --cyan-active: rgba(6, 182, 212, 0.12);
+            --smooth-curve: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
+        body {
+            background-color: var(--bg-dark);
+            color: #cbd5e1;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .font-shan { font-family: 'Ma Shan Zheng', cursive; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.2);
+            border-radius: 10px;
+        }
+
+        nav {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        nav.nav-hidden {
+            transform: translateY(-100%);
+        }
+
+        /* HOME 按鈕樣式 */
+        .fixed-home {
+            position: fixed;
+            right: 24px;
+            top: 24px;
+            z-index: 200;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .list-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-active {
+            background: var(--cyan-active) !important;
+            border-color: rgba(6, 182, 212, 0.5) !important;
+            transform: translateX(12px) scale(1.02);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(6, 182, 212, 0.1);
+        }
+
+        .card-active::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 20%;
+            height: 60%;
+            width: 4px;
+            background: #06b6d4;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 15px #06b6d4;
+            animation: slideInLeft 0.3s var(--smooth-curve);
+        }
+
+        @keyframes slideInLeft {
+            from { transform: scaleY(0); opacity: 0; }
+            to { transform: scaleY(1); opacity: 1; }
+        }
+
+        .filter-btn {
+            transition: all 0.3s var(--smooth-curve);
+        }
+
+        .filter-btn.active {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: rgba(6, 182, 212, 0.6);
+            color: #06b6d4;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-fade-in {
+            animation: detailReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes detailReveal {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .timeline-line {
+            background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.2) 10%, rgba(6, 182, 212, 0.2) 90%, transparent);
+            left: 24px;
+        }
+        @media (min-width: 768px) {
+            .timeline-line { left: 50%; }
+        }
+
+        .timeline-item-active .timeline-card {
+            background: rgba(6, 182, 212, 0.08) !important;
+            border-color: rgba(6, 182, 212, 0.6) !important;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
+            transform: scale(1.03);
+        }
+
+        .timeline-item-active .timeline-dot {
+            background: #06b6d4 !important;
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.2), 0 0 20px #06b6d4;
+            border-color: #fff !important;
+        }
+
+        .timeline-card {
+            transition: all 0.4s var(--smooth-curve);
+        }
+
+        .timeline-dot {
+            transition: all 0.4s var(--smooth-curve);
+        }
+
+        .reveal {
+            opacity: 0;
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        
+        .reveal-left { transform: translateX(-40px); }
+        .reveal-right { transform: translateX(40px); }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .special-glow {
+            color: #22d3ee !important;
+            filter: drop-shadow(0 0 3px rgba(34, 211, 238, 0.5));
+            border-color: rgba(34, 211, 238, 0.35) !important;
+            background: rgba(34, 211, 238, 0.08) !important;
+        }
+
+        .log-bullet {
+            display: inline-block;
+            color: #06b6d4;
+            margin-right: 0.5rem;
+            text-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+        }
+
+        .content-scroll {
+            max-height: 50vh;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .log-category {
+            margin-top: 1.5rem;
+        }
+        .log-category-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #06b6d4;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .log-category-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(6, 182, 212, 0.3), transparent);
+            margin-left: 1rem;
+        }
+        .log-list {
+            padding-left: 0.5rem;
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Footer 樣式調整 */
+        .footer-module {
+            padding: 5rem 1rem 4rem 1rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            position: relative;
+        }
+
+        .footer-module .footer-brand {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 28px;
+            margin-bottom: 1rem;
+            opacity: 0.35;
+            letter-spacing: 3px;
+        }
+
+        .footer-module .cyber-blue-text {
+            color: #06b6d4;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+        }
+
+        .footer-module .footer-text {
+            font-size: 13px;
+            line-height: 1.8;
+            letter-spacing: 0.12em;
+            max-width: 800px;
+            margin: 0 auto;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        .footer-module .footer-legal {
+            margin-top: 1.2rem;
+            font-size: 10px;
+            color: #64748b;
+            letter-spacing: 0.05em;
+            opacity: 0.5;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            .footer-module .footer-brand {
+                font-size: 22px;
+            }
+            .footer-module .footer-text {
+                font-size: 11px;
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#050507]">
+
+    <!-- HOME 按鈕：已更新連結位址 -->
+    <a href="https://cyc-whld.github.io/mcserverc08/index.html" class="fixed-home group flex items-center gap-3 px-5 py-2.5 bg-black/40 border border-white/10 rounded-xl hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:scale-105 transition-all active:scale-95">
+        <i data-lucide="home" class="text-slate-400 group-hover:text-cyan-400 w-5 h-5"></i>
+        <span class="text-xs font-mono font-bold text-slate-400 group-hover:text-white tracking-widest">HOME</span>
+    </a>
+
+    <nav id="navbar" class="w-full h-20 md:h-24 border-b border-white/5 bg-black/60 backdrop-blur-xl z-[100] flex items-center justify-between px-6 md:px-12 fixed top-0 left-0">
+        <div class="flex items-center h-full">
+            <div class="hidden sm:flex p-3 bg-white/5 rounded-xl border border-white/10 shadow-lg mr-4">
+                <i data-lucide="file-text" class="text-cyan-500 w-6 h-6"></i>
+            </div>
+            <div class="flex items-center">
+                <span class="font-shan text-2xl sm:text-4xl md:text-[3rem] text-white tracking-tight leading-none">山岳礦工藝</span>
+                <div class="flex items-center ml-4">
+                    <div class="w-px h-10 bg-white/10"></div>
+                    <div class="flex flex-col ml-4">
+                        <span class="font-shan text-xl sm:text-2xl text-cyan-500 leading-none">伺服器檔案庫</span>
+                        <span class="text-[9px] font-mono text-cyan-500/40 tracking-widest mt-1">SYSTEM_V2.6</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-32 hidden md:block"></div>
+    </nav>
+
+    <section class="min-h-screen pt-24 flex flex-col md:flex-row overflow-hidden">
+        <aside class="w-full md:w-80 lg:w-[380px] border-b md:border-b-0 md:border-r border-white/5 bg-black/20 flex flex-col max-h-[85vh] md:max-h-screen relative z-40">
+            <div class="p-6 pb-2">
+                <div class="relative mb-6">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4"></i>
+                    <input type="text" id="search-input" placeholder="搜尋代號或日期..." 
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-6 text-sm focus:border-cyan-500/40 transition-all text-white placeholder:text-slate-700 outline-none">
+                </div>
+                <div class="grid grid-cols-4 gap-2 mb-6" id="filter-container"></div>
+            </div>
+            <div id="card-list" class="flex-grow overflow-y-auto px-6 pb-12 space-y-4"></div>
+        </aside>
+
+        <main class="flex-grow bg-[#070709] relative flex flex-col">
+            <div class="w-full max-w-6xl mx-auto px-8 md:px-16 pt-12 pb-4 z-30 flex justify-between items-end">
+                <div>
+                    <div class="text-cyan-500/50 font-mono text-[10px] tracking-[0.4em] mb-2 uppercase">Core_Data_Access</div>
+                    <h2 class="text-white text-3xl font-black tracking-tighter" id="display-title-main">檢索中...</h2>
+                </div>
+                <div class="px-6 py-2 bg-white/[0.03] border border-white/5 rounded-xl text-cyan-500 font-mono text-lg font-bold" id="display-year">2026</div>
+            </div>
+            <div id="detail-scroll" class="flex-grow flex items-center justify-center p-8 md:p-16 relative z-20">
+                <div id="detail-content" class="w-full max-w-4xl"></div>
+            </div>
+        </main>
+    </section>
+
+    <section class="min-h-screen relative py-20 px-6 flex flex-col items-center bg-[#050507]">
+        <div class="absolute top-0 w-px h-full timeline-line"></div>
+        <div class="relative z-10 mb-16 text-center">
+            <h2 class="text-5xl md:text-7xl font-black text-white tracking-tighter mb-4">伺服器日誌</h2>
+            <p class="text-cyan-500 font-mono text-sm tracking-[0.8em] opacity-60">SERVER_TIMELINE</p>
+        </div>
+        <div id="time-tree-container" class="w-full max-w-5xl space-y-3 md:space-y-2 relative pb-20"></div>
+    </section>
+
+    <footer class="footer-module">
+        <div class="footer-brand">山岳<span class="cyber-blue-text">礦工藝</span></div>
+        <div class="footer-text font-mono">
+            Copyright © 2026 山岳礦工藝團隊. All rights reserved.<br>
+            Website developed by Inperial Storm. Server functions by Itsuki_Iridium.
+            <div class="footer-legal uppercase">NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG.</div>
+        </div>
+    </footer>
+
+    <script>
+        const changelogData = [
+            { id: '15', date: '2026-03-15', title: '切換核心', tags: ['更新', '伺服器'], content: '將原版server核心切換至模組服Fabric核心' },
+            { id: '14', date: '2026-03-14', title: '更新資源包', tags: ['更新'], content: '將近期新增材質包更新' },
+            { id: '13', date: '2026-03-13', title: '問題優化', tags: ['修復'], content: '修復了伏聆獄髓的錯誤顯示' },
+            { id: '12', date: '2026-03-09', title: '新增特殊技能、問題更新', tags: ['新增', '修復'], content: '新增刀具特殊技能<br><span class="log-bullet">●</span>修復了刀柄的特殊技能異常' },
+            { id: '11', date: '2026-03-08', title: '新增資源包、物品', tags: ['新增', '修復'], content: '新增308資源包<br><span class="log-bullet">●</span>新增獄髓剪刀<br><span class="log-bullet">●</span>修復了部分物品手持顯示異常' },
+            { id: '10', date: '2026-03-07', title: '問題更新、新增物品', tags: ['修復', '新增'], 
+              content: `
+                <div class="log-category">
+                    <div class="log-category-title">修復內容</div>
+                    <div class="log-list">
+                        <div class="text-slate-300 text-sm mb-2"><span class="log-bullet">●</span>修復了已知的BUG</div>
+                    </div>
+                </div>
+                <div class="log-category">
+                    <div class="log-category-title">更新內容</div>
+                    <div class="log-list space-y-4">
+                        <div>
+                            <div class="text-cyan-500/80 text-[10px] font-bold mb-1 uppercase tracking-wider">工作檯類</div>
+                            <div class="text-slate-400 text-sm">鍛造工作台、打磨與裝配台、精煉爐、Replicater</div>
+                        </div>
+                        <div>
+                            <div class="text-cyan-500/80 text-[10px] font-bold mb-1 uppercase tracking-wider">工具類</div>
+                            <div class="text-slate-400 text-sm">鐵製鍛造槌、鑽石製鍛造槌、獄髓製鍛造槌</div>
+                        </div>
+                        <div>
+                            <div class="text-cyan-500/80 text-[10px] font-bold mb-1 uppercase tracking-wider">金屬礦物類</div>
+                            <div class="text-slate-400 text-sm leading-relaxed">
+                                青銅錠、鋼錠、彈簧鋼錠、高碳鋼、大馬士革鋼<br>
+                                魔法粉塵、粗油、深海獄髓合金、伏聆獄髓合金、紫鋼
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-cyan-500/80 text-[10px] font-bold mb-1 uppercase tracking-wider">武器類</div>
+                            <div class="text-slate-400 text-sm">鞭子、獄髓劈斧、獄髓工兵鏟、獄髓鶴嘴斧、獄髓礦脈錘</div>
+                        </div>
+                        <div>
+                            <div class="text-cyan-500/80 text-[10px] font-bold mb-1 uppercase tracking-wider">刀柄材料</div>
+                            <div class="text-slate-400 text-sm leading-relaxed">
+                                各式原木的剝皮版、線、皮革、竹子<br>
+                                剝皮櫻花木、剝皮緋紅蕈柄、剝皮扭曲蕈柄<br>
+                                樹酯磚頭、骨頭、山羊角、鸚鵡螺殼、綠寶石
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-cyan-500/80 text-[10px] font-bold mb-1 uppercase tracking-wider">淬火與打磨材料</div>
+                            <div class="text-slate-400 text-sm">水、粗油、精煉油、油</div>
+                        </div>
+                    </div>
+                </div>
+              ` 
+            },
+            { id: '09', date: '2026-02-26', title: '緊急更新', tags: ['修復'], content: '修復了已知的BUG，由於有玩家在線使用此功能，因此當下立即更新。' },
+            { id: '08', date: '2026-02-25', title: '版本更新', tags: ['更新'], content: '伺服器更新版本更新' },
+            { id: '07', date: '2026-02-18', title: '問題優化', tags: ['修復'], content: '修復了已知的BUG' },
+            { id: '06', date: '2026-02-09', title: '問題優化', tags: ['修復'], content: '修復了已知的BUG' },
+            { id: '05', date: '2026-01-29', title: '問題優化', tags: ['修復'], content: '修復了已知的BUG' },
+            { id: '04', date: '2026-01-28', title: '新增組隊功能', tags: ['新增'], content: '新增組隊，可透過 G 開啟組隊按鈕' },
+            { id: '03', date: '2026-01-27', title: '新增傳送石碑、限高更新', tags: ['新增', '更新'], content: '新增傳送石碑，不限跨維度傳送，並且可自由合成。<br><span class="log-bullet">●</span>將原版限高更新至 448 格。' },
+            { id: '02', date: '2026-01-26', title: '新增 tpa 功能', tags: ['新增'], content: '新增傳送玩家功能，限制跨維度傳送。' },
+            { id: '01.5', date: '2026-01-25', title: '新增束口袋、記分表', tags: ['新增'], content: '新增束口袋自選顏色、上線領取功能。<br><span class="log-bullet">●</span>新增死亡、遊玩時數計分表。' },
+            { id: '01', date: '2026-01-24', title: '開服', tags: ['開服'], content: '伺服器第一天正式營運' }
+        ];
+
+        const tagIcons = { '更新': 'refresh-cw', '修復': 'wrench', '新增': 'plus-circle', '開服': 'power', '伺服器': 'server' };
+        let activeId = '10', filterType = '全部', searchQuery = '';
+
+        let lastScrollTop = 0;
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 50) navbar.classList.add('nav-hidden');
+            else navbar.classList.remove('nav-hidden');
+            lastScrollTop = scrollTop;
+        });
+
+        function renderFilters() {
+            const options = [{ label: '全部', icon: 'layout-grid' }, { label: '更新', icon: 'refresh-cw' }, { label: '修復', icon: 'wrench' }, { label: '新增', icon: 'plus-circle' }];
+            document.getElementById('filter-container').innerHTML = options.map(opt => `
+                <button onclick="setFilter('${opt.label}')" class="filter-btn flex flex-col items-center justify-center py-3 rounded-xl border ${filterType === opt.label ? 'active' : 'bg-white/5 border-white/10 text-slate-500 hover:border-white/20'}">
+                    <i data-lucide="${opt.icon}" class="w-4 h-4 mb-1.5"></i>
+                    <span class="text-[9px] font-bold tracking-tighter">${opt.label}</span>
+                </button>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderCardList() {
+            const filtered = changelogData.filter(log => {
+                const mType = filterType === '全部' || log.tags.some(tag => tag === filterType);
+                const mSearch = log.title.toLowerCase().includes(searchQuery.toLowerCase()) || log.date.includes(searchQuery);
+                return mType && mSearch;
+            });
+
+            document.getElementById('card-list').innerHTML = filtered.map(log => {
+                const isActive = activeId === log.id;
+                return `
+                    <div onclick="setActive('${log.id}')" class="list-card p-5 rounded-2xl cursor-pointer border relative group ${isActive ? 'card-active' : 'bg-white/[0.02] border-white/5 hover:border-white/10'}">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-mono tracking-widest ${isActive ? 'text-cyan-400' : 'text-slate-600'} mb-1">${log.date}</span>
+                            <span class="font-bold text-sm tracking-tight ${isActive ? 'text-white' : 'text-slate-400'} max-w-[80%]">${log.title}</span>
+                        </div>
+                        <div class="tag-stack absolute top-4 right-4 flex flex-col gap-1 items-center">
+                            ${log.tags.map(tag => `
+                                <div class="w-6 h-6 flex items-center justify-center rounded-md border transition-all duration-300 ${(tag === '開服' || tag === '伺服器') ? 'special-glow' : (isActive ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-400' : 'bg-white/5 border-white/10 text-slate-600')}">
+                                    <i data-lucide="${tagIcons[tag] || 'hash'}" class="w-3.5 h-3.5"></i>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function renderDetail() {
+            const data = changelogData.find(l => l.id === activeId);
+            if (!data) return;
+            document.getElementById('display-title-main').innerText = data.title;
+            document.getElementById('display-year').innerText = data.date.split('-')[0];
+            
+            document.getElementById('detail-content').innerHTML = `
+                <div class="detail-fade-in glass-panel p-8 md:p-12 rounded-[2.5rem] relative shadow-2xl overflow-hidden border-cyan-500/10">
+                    <div class="absolute -bottom-10 -right-10 opacity-[0.03]"><i data-lucide="${data.tags.includes('開服') ? 'power' : (data.tags.includes('伺服器') ? 'server' : 'file-text')}" class="w-80 h-80"></i></div>
+                    <div class="relative z-10 space-y-6">
+                        <div class="flex items-center gap-4">
+                            ${data.tags.map(tag => `<span class="px-3 py-1 ${(tag === '開服' || tag === '伺服器') ? 'special-glow border' : 'bg-cyan-500/10 border border-cyan-500/30 text-cyan-400'} text-[10px] font-bold rounded uppercase">${tag}</span>`).join('')}
+                            <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+                            <span class="text-slate-500 font-mono text-xs">${data.date}</span>
+                        </div>
+                        <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">${data.title}</h2>
+                        <div class="h-px w-24 bg-cyan-500/50"></div>
+                        <div class="content-scroll">
+                            <div class="text-slate-400 leading-relaxed font-light">
+                                ${data.content.includes('log-category') ? data.content : `<span class="log-bullet">●</span>${data.content}`}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+            
+            document.querySelectorAll('.time-tree-item').forEach(el => {
+                if(el.dataset.id === activeId) el.classList.add('timeline-item-active');
+                else el.classList.remove('timeline-item-active');
+            });
+        }
+
+        function renderTimeTree() {
+            const sortedData = [...changelogData].reverse();
+            document.getElementById('time-tree-container').innerHTML = sortedData.map((log, index) => {
+                const isEven = index % 2 === 0;
+                const isActive = activeId === log.id;
+                return `
+                    <div data-id="${log.id}" class="time-tree-item reveal ${isEven ? 'reveal-left' : 'reveal-right'} ${isActive ? 'timeline-item-active' : ''} flex items-center w-full relative" style="transition-delay: ${index * 0.05}s">
+                        <div class="absolute left-[-4px] md:left-1/2 md:-translate-x-1/2 flex items-center justify-center z-20">
+                            <div class="timeline-dot w-2 h-2 bg-slate-800 border border-slate-700 rounded-full"></div>
+                        </div>
+                        <div class="w-full md:w-[45%] pl-10 md:pl-0 md:${isEven ? 'mr-auto md:pr-12' : 'ml-auto md:pl-12'}">
+                            <div onclick="setActive('${log.id}')" class="timeline-card glass-panel p-5 md:p-6 rounded-3xl border-white/5 relative group hover:border-cyan-500/40 hover:bg-white/[0.04] transition-all cursor-pointer">
+                                <div class="flex justify-between items-stretch gap-4">
+                                    <div class="flex-grow">
+                                        <span class="text-cyan-500 font-mono text-[10px] font-bold block opacity-60 tracking-widest uppercase mb-1">${log.date}</span>
+                                        <h3 class="text-lg md:text-xl font-black text-white mb-2 group-hover:text-cyan-400 transition-colors tracking-tight">${log.title}</h3>
+                                        <div class="text-slate-500 leading-relaxed text-xs max-w-[95%] font-light line-clamp-2">
+                                            ${log.content.replace(/<[^>]*>/g, ' ').substring(0, 100)}...
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2 shrink-0">
+                                        ${log.tags.map(tag => `
+                                            <div class="w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-300 group-hover:scale-110 ${(tag === '開服' || tag === '伺服器') ? 'special-glow' : 'bg-white/5 border-white/10 text-slate-600'}">
+                                                <i data-lucide="${tagIcons[tag]}" class="w-5 h-5"></i>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+            initObserver();
+        }
+
+        function initObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('active');
+                    else entry.target.classList.remove('active');
+                });
+            }, { threshold: 0.1, rootMargin: "0px 0px -10% 0px" });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        function setFilter(type) { filterType = type; renderFilters(); renderCardList(); }
+        
+        function setActive(id) { 
+            activeId = id; 
+            renderCardList(); 
+            renderDetail(); 
+        }
+
+        document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderCardList(); });
+
+        window.onload = () => { renderFilters(); renderCardList(); renderDetail(); renderTimeTree(); };
+    </script>
+</body>
+</html>
