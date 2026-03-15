@@ -12,6 +12,8 @@
     <script src="https://cdn.tailwindcss.com/"></script>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- 引入 Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -24,6 +26,15 @@
             --brand-discord: #5865F2;
             --brand-github: #ffffff;
             --brand-ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            
+            /* 液態玻璃變數 */
+            --lg-bg-color: rgba(255, 255, 255, 0.12);
+            --lg-highlight: rgba(255, 255, 255, 0.4);
+            --lg-text: #ffffff;
+            --lg-red: #fb4268;
+            --lg-grey: #e0e0f0;
+
+            --card-solid-bg: #070712;
         }
 
         body {
@@ -35,16 +46,10 @@
             background: radial-gradient(circle at 50% 50%, #0c0c1e 0%, #030307 100%);
         }
 
-        h1, h2, h3, .font-mono {
-            font-family: "Share Tech Mono", "Microsoft JhengHei", sans-serif;
-        }
+        h1, h2, h3, .font-mono { font-family: "Share Tech Mono", "Microsoft JhengHei", sans-serif; }
+        .font-calligraphy { font-family: 'Ma Shan Zheng', cursive; letter-spacing: 2px; }
 
-        .font-calligraphy {
-            font-family: 'Ma Shan Zheng', cursive;
-            letter-spacing: 2px;
-        }
-
-        /* 導航欄強化 */
+        /* 導航欄 */
         .nav-container {
             background: rgba(5, 5, 10, 0.85);
             backdrop-filter: blur(20px);
@@ -53,7 +58,6 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 210, 255, 0.1);
             transition: all 0.3s ease;
         }
-
         .nav-container:hover {
             border-color: rgba(0, 210, 255, 0.4);
             box-shadow: 0 10px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 210, 255, 0.15);
@@ -61,47 +65,21 @@
 
         .social-icon {
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            font-size: 1rem;
-            text-decoration: none;
-            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12);
+            font-size: 1rem; text-decoration: none; overflow: hidden;
         }
+        @media (min-width: 768px) { .social-icon { width: 44px; height: 44px; font-size: 1.2rem; } }
 
-        @media (min-width: 768px) {
-            .social-icon { width: 44px; height: 44px; font-size: 1.2rem; }
-        }
-
-        /* 左側 Logo */
         .brand-logo-frame {
-            border-radius: 12px;
-            border: 1.5px solid rgba(0, 210, 255, 0.3);
-            background: rgba(0, 210, 255, 0.1);
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            flex-shrink: 0;
+            border-radius: 12px; border: 1.5px solid rgba(0, 210, 255, 0.3);
+            background: rgba(0, 210, 255, 0.1); width: 38px; height: 38px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            transition: all 0.4s ease; flex-shrink: 0;
         }
-        
-        @media (min-width: 768px) {
-            .brand-logo-frame { width: 44px; height: 44px; }
-        }
-
-        .brand-logo-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        @media (min-width: 768px) { .brand-logo-frame { width: 44px; height: 44px; } }
+        .brand-logo-frame img { width: 100%; height: 100%; object-fit: cover; }
 
         .icon-discord { color: var(--brand-discord); }
         .icon-discord:hover { background: var(--brand-discord); color: white; border-color: transparent; transform: scale(1.1); }
@@ -110,327 +88,167 @@
         .icon-ig { background: var(--brand-ig-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .icon-ig:hover { background: var(--brand-ig-gradient); -webkit-text-fill-color: white; border-color: transparent; transform: scale(1.1); }
 
-        /* 英雄區塊 */
         .hero-section {
-            min-height: 85vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 120px 20px 40px;
-            background: linear-gradient(rgba(5,5,10,0.5), rgba(5,5,10,0.9));
+            min-height: 85vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            padding: 120px 20px 40px; background: linear-gradient(rgba(5,5,10,0.5), rgba(5,5,10,0.9));
         }
 
         .cyber-title {
-            font-size: clamp(2.2rem, 8vw, 5rem);
-            font-weight: 900;
-            color: white;
-            letter-spacing: -1px;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+            font-size: clamp(2.2rem, 8vw, 5rem); font-weight: 900; color: white;
+            letter-spacing: -1px; margin-bottom: 1.5rem; text-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
         }
 
         .cyber-button {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--cyber-blue);
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            transition: 0.3s;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--cyber-blue); padding: 12px 30px; border-radius: 50px;
+            font-weight: bold; font-size: 0.85rem; transition: 0.3s;
+            backdrop-filter: blur(10px); cursor: pointer;
         }
-
         .cyber-button:hover {
-            background: var(--cyber-blue);
-            color: black;
-            box-shadow: 0 0 20px var(--cyber-blue);
-            transform: translateY(-2px);
+            background: var(--cyber-blue); color: black;
+            box-shadow: 0 0 20px var(--cyber-blue); transform: translateY(-2px);
         }
 
-        /* 資源卡片區塊 */
-        .resource-section {
-            padding-top: 5rem;
-            padding-bottom: 2rem;
+        .status-container {
+            display: flex; align-items: center; padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px; justify-content: center;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 30px;
-            padding: 40px 30px;
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
+        .resource-section { padding-top: 5rem; padding-bottom: 2rem; }
+        
+        .glass-container {
+            position: relative; display: flex; flex-direction: column;
+            border-radius: 2rem; overflow: hidden; color: var(--lg-text);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .glass-card:hover {
+        .card-solid-base { position: absolute; inset: 0; background-color: var(--card-solid-bg); z-index: 0; }
+        .glass-container:hover {
             transform: translateY(-10px);
-            border-color: var(--cyber-blue);
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 210, 255, 0.2);
+            border-color: rgba(0, 210, 255, 0.4);
         }
 
-        /* 3D 渲染區域 & 流動圖標 */
-        @keyframes scrollIcons {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-33.3333%); }
-        }
+        .glass-filter, .glass-overlay, .glass-specular { position: absolute; inset: 0; border-radius: inherit; }
+        .glass-filter { z-index: 1; backdrop-filter: blur(8px); filter: url(#lensFilter) saturate(120%) brightness(1.15); }
+        .glass-overlay { z-index: 2; background: var(--lg-bg-color); }
+        .glass-specular { z-index: 3; box-shadow: inset 1px 1px 0 var(--lg-highlight), inset 0 0 10px var(--lg-highlight); }
+        .glass-content { position: relative; z-index: 4; display: flex; flex-direction: column; align-items: center; padding: 40px 24px; gap: 1rem; text-align: center; }
+        .glass-item svg { color: var(--lg-grey); width: 42px; height: 42px; filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.25)); transition: transform 0.25s ease-out, color 0.3s ease; }
+        .glass-container:hover .glass-item svg { transform: scale(1.1); color: var(--cyber-blue); }
 
+        @keyframes scrollIcons { 0% { transform: translateX(0); } 100% { transform: translateX(-33.3333%); } }
         .slider-section {
-            padding: 0; 
-            overflow: hidden;
-            position: relative;
-            background: transparent;
-            touch-action: pan-y;
-            height: 420px; 
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            padding: 0; overflow: hidden; position: relative; background: transparent;
+            touch-action: pan-y; height: 500px; display: flex; flex-direction: column; justify-content: flex-end;
             margin-top: -1rem;
         }
 
-        #hologram-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1; 
-            pointer-events: none;
-            opacity: 1;
-        }
+        #hologram-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; opacity: 1; }
 
         .slider-track {
-            display: flex;
-            animation: scrollIcons 35s linear infinite;
-            padding: 40px 0 50px; 
-            gap: 40px;
-            width: max-content;
-            pointer-events: auto;
-            align-items: center;
-            position: relative;
-            z-index: 5; 
+            display: flex; animation: scrollIcons 35s linear infinite;
+            padding: 40px 0 50px; gap: 40px; width: max-content; pointer-events: auto;
+            align-items: center; position: relative; z-index: 5; 
             background: linear-gradient(to top, rgba(3,3,7,1) 40%, rgba(3,3,7,0.4) 80%, transparent 100%);
-            margin-bottom: 0px;
         }
 
         .icon-box {
-            height: 70px;
-            width: 70px;
-            background: rgba(10, 10, 25, 0.85); 
-            border: 1.5px solid rgba(255, 255, 255, 0.15); 
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            backdrop-filter: blur(8px);
+            height: 70px; width: 70px; background: rgba(10, 10, 25, 0.85); 
+            border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 18px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; backdrop-filter: blur(8px);
         }
-
         .icon-box:nth-child(odd) { transform: translateY(-20px); }
         .icon-box:nth-child(even) { transform: translateY(20px); }
-
         .icon-box:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--cyber-blue);
-            box-shadow: 0 0 30px rgba(0, 210, 255, 0.4);
-            z-index: 50;
-            transform: translateY(0) scale(1.25) !important;
+            background: rgba(255, 255, 255, 0.15); border-color: var(--cyber-blue);
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.4); z-index: 50; transform: translateY(0) scale(1.25) !important;
         }
+        .icon-box img { width: 35px; height: 35px; object-fit: contain; pointer-events: none; }
 
-        .icon-box img {
-            width: 35px;
-            height: 35px;
-            object-fit: contain;
-            pointer-events: none;
-        }
-
-        /* 返回頂層 */
-        @keyframes liquidRotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+        @keyframes liquidRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 120px;
-            border-radius: 50px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            text-decoration: none;
-            color: white;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(30px) scale(0.9);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow: hidden;
+            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 120px;
+            border-radius: 50px; z-index: 1000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; cursor: pointer; text-decoration: none;
+            color: white; opacity: 0; visibility: hidden; transform: translateY(30px) scale(0.9);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden;
         }
-
         .back-to-top.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-
         .back-to-top::before {
-            content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
+            content: ""; position: absolute; width: 200%; height: 200%;
             background: conic-gradient(transparent, transparent, transparent, var(--cyber-blue), transparent);
             animation: liquidRotate 4s linear infinite;
         }
-
         .back-to-top::after {
-            content: "";
-            position: absolute;
-            inset: 2px; 
-            background: rgba(10, 10, 20, 0.6);
-            backdrop-filter: blur(15px);
-            border-radius: 48px;
-            z-index: 1;
+            content: ""; position: absolute; inset: 2px; background: rgba(10, 10, 20, 0.6);
+            backdrop-filter: blur(15px); border-radius: 48px; z-index: 1;
         }
+        .back-to-top .content-wrapper { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .back-to-top i { font-size: 18px; color: var(--cyber-blue); text-shadow: 0 0 10px var(--cyber-blue); }
+        .back-to-top .vertical-text { font-size: 13px; writing-mode: vertical-rl; letter-spacing: 6px; font-weight: 700; color: rgba(255, 255, 255, 0.95); text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
+        .back-to-top:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 0 30px rgba(0, 210, 255, 0.3); }
 
-        .back-to-top .content-wrapper {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .back-to-top i {
-            font-size: 18px;
-            color: var(--cyber-blue);
-            text-shadow: 0 0 10px var(--cyber-blue);
-        }
-
-        .back-to-top .vertical-text {
-            font-size: 13px;
-            writing-mode: vertical-rl;
-            letter-spacing: 6px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            font-family: "Microsoft JhengHei", sans-serif;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
-        }
-
-        .back-to-top:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
-        }
-
-        /* 狀態指示燈 */
-        .status-dot {
-            width: 8px; height: 8px;
-            background: #00ffaa;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #00ffaa;
-            margin-right: 12px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
+        .status-dot { width: 8px; height: 8px; background: #00ffaa; border-radius: 50%; box-shadow: 0 0 10px #00ffaa; margin-right: 12px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
 
         .toast-message {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(5, 5, 10, 0.95);
-            border-left: 4px solid var(--cyber-blue);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            opacity: 0;
-            z-index: 100;
-            pointer-events: none;
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: rgba(5, 5, 10, 0.95); border-left: 4px solid var(--cyber-blue); color: white;
+            padding: 10px 20px; border-radius: 8px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); opacity: 0; z-index: 100; pointer-events: none;
         }
-
         .toast-message.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        .footer-brand {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: 26px;
-            margin-bottom: 0.5rem;
-            opacity: 0.3;
-        }
+        .footer-brand { font-family: 'Ma Shan Zheng', cursive; font-size: 26px; margin-bottom: 0.5rem; opacity: 0.3; }
+        .footer-text { font-size: 13.5px; line-height: 1.4; letter-spacing: 0.1em; color: #374151; max-width: 800px; margin: 0 auto; text-transform: uppercase; padding: 0 20px; }
+        .footer-legal { margin-top: 0.4rem; opacity: 0.8; font-size: 11px; color: #374151; letter-spacing: 0.05em; }
 
-        .footer-text {
-            font-size: 13.5px;
-            line-height: 1.4;
-            letter-spacing: 0.1em;
-            color: #374151;
-            max-width: 800px;
-            margin: 0 auto;
-            text-transform: uppercase;
-            padding: 0 20px;
-        }
-
-        .footer-legal {
-            margin-top: 0.4rem;
-            opacity: 0.8; 
-            font-size: 11px;
-            color: #374151; 
-            letter-spacing: 0.05em;
-        }
-
-        /* 導航標題優化 */
-        .brand-title {
-            font-size: 24px;
-            flex-grow: 1;
-            text-align: center;
-        }
-
-        @media (min-width: 768px) {
-            .brand-title { font-size: 38px; }
-        }
-
+        .brand-title { font-size: 24px; flex-grow: 1; text-align: center; }
+        @media (min-width: 768px) { .brand-title { font-size: 38px; } }
         @media (max-width: 640px) {
             .brand-title span:first-child { display: block; line-height: 1; font-size: 0.8em; }
             .brand-title { line-height: 1.1; margin: 0 10px; }
             .nav-container { padding-left: 1rem; padding-right: 1rem; }
             .social-icon-group { gap: 0.5rem !important; }
         }
+
+        #loading-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--cyber-dark); z-index: 10; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            color: var(--cyber-blue); font-family: 'Share Tech Mono'; transition: opacity 0.5s;
+        }
     </style>
 </head>
 <body>
 
+    <svg style="position: absolute; width: 0; height: 0;">
+        <filter id="lensFilter">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="lens" />
+            <feComposite in="SourceGraphic" in2="lens" operator="atop" />
+        </filter>
+    </svg>
+
     <!-- 導航 -->
     <nav class="fixed top-4 md:top-6 left-0 right-0 z-50 px-4 md:px-6">
         <div class="container mx-auto nav-container py-2 md:py-3 px-4 md:px-8 rounded-full flex justify-between items-center relative">
-            <!-- 左側：Logo -->
             <div class="flex items-center">
                 <div class="brand-logo-frame cursor-pointer" title="山岳礦工藝 Logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
                     <img src="https://cyc-whld.github.io/mcserverc08/8.png" alt="Brand Logo">
                 </div>
             </div>
-
-            <!-- 中間：標題 -->
             <div class="brand-title font-calligraphy whitespace-nowrap overflow-hidden">
                 <span class="text-white">山岳</span><span class="text-[var(--cyber-blue)]">礦工藝</span>
             </div>
-
-            <!-- 右側：社群連結 -->
             <div class="flex items-center gap-2 md:gap-4 social-icon-group">
-                <a href="https://discord.gg/szbEv4gM" target="_blank" class="social-icon icon-discord" title="Discord"><i class="fa-brands fa-discord"></i></a>
-                <a href="https://github.com/CYC-WHLD" target="_blank" class="social-icon icon-github" title="GitHub" class="hidden sm:flex"><i class="fa-brands fa-github"></i></a>
-                <a href="https://www.instagram.com/cycldmt09/" target="_blank" class="social-icon icon-ig" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://discord.gg/szbEv4gM" target="_blank" class="social-icon icon-discord"><i class="fa-brands fa-discord"></i></a>
+                <a href="https://github.com/CYC-WHLD" target="_blank" class="social-icon icon-github" class="hidden sm:flex"><i class="fa-brands fa-github"></i></a>
+                <a href="https://www.instagram.com/cycldmt09/" target="_blank" class="social-icon icon-ig"><i class="fa-brands fa-instagram"></i></a>
             </div>
         </div>
     </nav>
@@ -443,60 +261,92 @@
             在像素的邊界，構築未來的秩序。<br>
             <span class="text-[14px] md:text-[18px] mt-2 block opacity-45 italic font-mono">Since 2026</span>
         </p>
-        
         <div class="flex flex-col md:flex-row gap-4">
             <button onclick="copyIP()" class="cyber-button">複製伺服器地址</button>
-            <div class="flex items-center px-6 py-2 bg-white/5 border border-white/10 rounded-full justify-center">
+            <div class="status-container">
                 <div class="status-dot"></div>
-                <span class="font-mono text-[10px] text-gray-400 tracking-tighter">ONLINE: 2 / 50 </span>
+                <span class="font-mono text-[14px] text-gray-300 tracking-normal font-bold">ONLINE: 2 / 50 </span>
             </div>
         </div>
     </section>
 
-    <!-- 資源控制中心 -->
+<!-- 資源控制中心 -->
     <section class="container mx-auto px-6 resource-section">
         <div class="text-center mb-16">
             <h2 class="text-[28px] md:text-[36px] font-black mb-2">資源控制中心</h2>
             <p class="text-[14px] md:text-[16px] font-mono tracking-[0.4em] text-gray-700 uppercase">Selection Modules</p>
         </div>
-        
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <div class="glass-card text-center cursor-pointer group" onclick="showToast('載入更新日誌...')">
-                <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">📂</div>
-                <h3 class="font-bold text-lg mb-2">更新日誌</h3>
-                <p class="text-xs text-gray-600">查看伺服器版本更迭與修復細節。</p>
+            
+            <!-- 1. 伺服器資料庫 -->
+            <div class="glass-container group" onclick="window.location.href='https://cyc-whld.github.io/mcserverc08/cards1.html'">
+                <div class="card-solid-base"></div><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+                <div class="glass-content glass-item">
+                    <i data-lucide="database"></i>
+                    <h3 class="font-bold text-lg mb-1">伺服器資料庫</h3>
+                    <p class="text-[12px] text-gray-400/80 font-mono tracking-widest group-hover:text-[var(--cyber-blue)] transition-colors">查看伺服器版本更新日誌。</p>
+                </div>
             </div>
-            <!-- 跳轉卡片：卡片 2 -->
-            <div class="glass-card text-center cursor-pointer group" onclick="window.location.href='https://cyc-whld.github.io/mcserverc08/cards2.html'">
-                <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">📡</div>
-                <h3 class="font-bold text-lg mb-2">伺服器 IP 資訊</h3>
-                <p class="text-xs text-gray-500">獲取當前主線與測試服連線地址。</p>
+
+            <!-- 2. 連線IP資訊 -->
+            <div class="glass-container group" onclick="window.location.href='https://cyc-whld.github.io/mcserverc08/cards2.html'">
+                <div class="card-solid-base"></div><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+                <div class="glass-content glass-item">
+                    <i data-lucide="map"></i>
+                    <h3 class="font-bold text-lg mb-1">連線IP資訊</h3>
+                    <p class="text-[12px] text-gray-400/80 font-mono tracking-widest group-hover:text-[var(--cyber-blue)] transition-colors">前往獲得VPN與IP位置已進行連線</p>
+                </div>
             </div>
-            <div class="glass-card text-center cursor-pointer group" onclick="showToast('正在存取配方資料庫...')">
-                <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">🧪</div>
-                <h3 class="font-bold text-lg mb-2">特殊物品配方</h3>
-                <p class="text-xs text-gray-500">研發特區插件武器與合成公式參數。</p>
+
+            <!-- 3. 特殊功能用法 -->
+            <div class="glass-container group" onclick="showToast('載入功能手冊...')">
+                <div class="card-solid-base"></div><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+                <div class="glass-content glass-item">
+                    <i data-lucide="zap"></i>
+                    <h3 class="font-bold text-lg mb-1">特殊功能用法</h3>
+                    <p class="text-[12px] text-gray-400/80 font-mono tracking-widest group-hover:text-[var(--cyber-blue)] transition-colors">這裡了解特殊功能如何快速使用</p>
+                </div>
             </div>
-            <div class="glass-card text-center cursor-pointer group" onclick="showToast('正在獲取資源包...')">
-                <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">📦</div>
-                <h3 class="font-bold text-lg mb-2">資源包下載</h3>
-                <p class="text-xs text-gray-500">獲取伺服器專用材質與音效擴展包。</p>
+
+            <!-- 4. 特殊物品合成表 -->
+            <div class="glass-container group" onclick="showToast('正在獲取合成表...')">
+                <div class="card-solid-base"></div><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+                <div class="glass-content glass-item">
+                    <i data-lucide="flask-conical"></i>
+                    <h3 class="font-bold text-lg mb-1">特殊物品合成表</h3>
+                    <p class="text-[12px] text-gray-400/80 font-mono tracking-widest group-hover:text-[var(--cyber-blue)] transition-colors">特殊物品合成與取得指南</p>
+                </div>
             </div>
-            <div class="glass-card text-center cursor-pointer group" onclick="showToast('載入遊戲功能清單...')">
-                <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">⚙️</div>
-                <h3 class="font-bold text-lg mb-2">遊戲功能</h3>
-                <p class="text-xs text-gray-500">新手入服指令、領地與經濟系統概覽。</p>
+
+            <!-- 5. 資源包下載 -->
+            <div class="glass-container group" onclick="showToast('載入資源鏈結...')">
+                <div class="card-solid-base"></div><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+                <div class="glass-content glass-item">
+                    <i data-lucide="package"></i>
+                    <h3 class="font-bold text-lg mb-1">資源包下載</h3>
+                    <p class="text-[12px] text-gray-400/80 font-mono tracking-widest group-hover:text-[var(--cyber-blue)] transition-colors">所有有關伺服器的專屬資源包存放區</p>
+                </div>
             </div>
-            <div class="glass-card text-center cursor-pointer group" onclick="showToast('正在連接支援服務...')">
-                <div class="text-2xl mb-4 group-hover:scale-125 transition-transform">💬</div>
-                <h3 class="font-bold text-lg mb-2">聯繫我們</h3>
-                <p class="text-xs text-gray-500">加入 Discord 社區討論或回報系統錯誤。</p>
+
+            <!-- 6. 伺服器玩偶 -->
+            <div class="glass-container group" onclick="showToast('正在載入玩家清單...')">
+                <div class="card-solid-base"></div><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+                <div class="glass-content glass-item">
+                    <i data-lucide="users"></i>
+                    <h3 class="font-bold text-lg mb-1">伺服器玩偶</h3>
+                    <p class="text-[12px] text-gray-400/80 font-mono tracking-widest group-hover:text-[var(--cyber-blue)] transition-colors">目前經過已授權的玩家模型</p>
+                </div>
             </div>
+
         </div>
     </section>
 
     <!-- 3D 渲染區域 -->
     <section class="slider-section">
+        <div id="loading-screen">
+            <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+            <div>正在以物理數學重構行星地貌與海洋板塊...</div>
+        </div>
         <canvas id="hologram-canvas"></canvas>
         <div class="slider-track" id="sliderTrack">
             <div class="icon-box" title="Minecraft"><img src="https://cyc-whld.github.io/mcserverc08/minecraft.png" alt="MC"></div>
@@ -510,12 +360,9 @@
             <div class="icon-box" title="Radmin VPN"><img src="https://cyc-whld.github.io/mcserverc08/radmin.png" alt="Radmin"></div>
             <div class="icon-box" title="Tailscale"><img src="https://cyc-whld.github.io/mcserverc08/tailscale.png" alt="Tailscale"></div>
             <div class="icon-box" title="fabric"><img src="https://cyc-whld.github.io/mcserverc08/fabric.png" alt="Fabric"></div>
-            <div class="icon-box" title="Microsoft"><img src="https://cyc-whld.github.io/mcserverc08/Microsoft.png" alt="MS"></div>
-            <div class="icon-box" title="Xbox"><img src="https://cyc-whld.github.io/mcserverc08/Xbox.png" alt="Xbox"></div>
         </div>
     </section>
 
-    <!-- 頁尾 -->
     <footer class="py-12 text-center border-t border-white/5 bg-[#030307]">
         <div class="footer-brand">山岳<span class="text-[var(--cyber-blue)]">礦工藝</span></div>
         <div class="footer-text font-mono">
@@ -525,111 +372,207 @@
         </div>
     </footer>
 
-    <!-- 返回頂層 -->
     <a href="#top" id="backToTop" class="back-to-top">
-        <div class="content-wrapper">
-            <i class="fa-solid fa-chevron-up"></i>
-            <span class="vertical-text">返回頂層</span>
-        </div>
+        <div class="content-wrapper"><i class="fa-solid fa-chevron-up"></i><span class="vertical-text">返回頂層</span></div>
     </a>
-
     <div id="toast" class="toast-message"></div>
 
     <script>
-        // --- 3D 渲染代碼 ---
-        function createRealisticEarthTexture() {
+        lucide.createIcons();
+
+        // -------------------------------------------------------------
+        // 數學核心：3D Perlin Noise (簡單高效實現版)
+        // -------------------------------------------------------------
+        const PERLIN_YWRAPB = 4;
+        const PERLIN_YWRAP = 1 << PERLIN_YWRAPB;
+        const PERLIN_ZWRAPB = 8;
+        const PERLIN_ZWRAP = 1 << PERLIN_ZWRAPB;
+        const PERLIN_SIZE = 4095;
+        let perlin = null;
+
+        function scaled_cosine(i) { return 0.5 * (1.0 - Math.cos(i * Math.PI)); }
+
+        function noise3D(x, y, z) {
+            if (perlin == null) {
+                perlin = new Array(PERLIN_SIZE + 1);
+                for (let i = 0; i < PERLIN_SIZE + 1; i++) {
+                    perlin[i] = Math.random();
+                }
+            }
+            if (x < 0) x = -x; if (y < 0) y = -y; if (z < 0) z = -z;
+            let xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+            let xf = x - xi, yf = y - yi, zf = z - zi;
+            let rxf, ryf;
+            let r = 0;
+            let am = 0.5;
+            let n1, n2, n3;
+            // 單個 Octave
+            let ofs = xi + (yi << PERLIN_YWRAPB) + (zi << PERLIN_ZWRAPB);
+            rxf = scaled_cosine(xf); ryf = scaled_cosine(yf);
+            n1 = perlin[ofs & PERLIN_SIZE]; n1 += rxf * (perlin[(ofs + 1) & PERLIN_SIZE] - n1);
+            n2 = perlin[(ofs + PERLIN_YWRAP) & PERLIN_SIZE]; n2 += rxf * (perlin[(ofs + PERLIN_YWRAP + 1) & PERLIN_SIZE] - n2);
+            n1 += ryf * (n2 - n1);
+            ofs += PERLIN_ZWRAP;
+            n2 = perlin[ofs & PERLIN_SIZE]; n2 += rxf * (perlin[(ofs + 1) & PERLIN_SIZE] - n2);
+            n3 = perlin[(ofs + PERLIN_YWRAP) & PERLIN_SIZE]; n3 += rxf * (perlin[(ofs + PERLIN_YWRAP + 1) & PERLIN_SIZE] - n3);
+            n2 += ryf * (n3 - n2);
+            n1 += scaled_cosine(zf) * (n2 - n1);
+            return n1;
+        }
+
+        // FBM (Fractional Brownian Motion) - 多重碎形地形生成
+        function fbm(x, y, z, octaves) {
+            let total = 0; let frequency = 1; let amplitude = 1; let maxValue = 0;
+            for(let i=0; i<octaves; i++) {
+                total += noise3D(x * frequency, y * frequency, z * frequency) * amplitude;
+                maxValue += amplitude; amplitude *= 0.5; frequency *= 2.0;
+            }
+            return total / maxValue;
+        }
+
+        // -------------------------------------------------------------
+        // 物理與幾何：球面坐標系貼圖生成
+        // -------------------------------------------------------------
+        function createProceduralEarthMap(width = 1024, height = 512) {
             const canvas = document.createElement('canvas');
-            canvas.width = 2048; canvas.height = 1024;
+            canvas.width = width; canvas.height = height;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#010816';
-            ctx.fillRect(0, 0, 2048, 1024);
-            for(let i=0; i<80; i++) {
-                ctx.fillStyle = `rgba(0, 40, 100, ${0.3 + Math.random()*0.4})`;
-                ctx.beginPath();
-                ctx.arc(Math.random()*2048, Math.random()*1024, Math.random()*250+50, 0, Math.PI*2);
-                ctx.fill();
+            const imgData = ctx.createImageData(width, height);
+            const data = imgData.data;
+
+            // 為了讓地球板塊更像自然分佈，調整這些基數
+            const scale = 2.5; 
+            
+            for (let y = 0; y < height; y++) {
+                // v 從 0 到 1 (0 = 北極, 1 = 南極)
+                let v = y / height;
+                // phi 緯度角 (0 到 PI)
+                let phi = v * Math.PI; 
+                let ny = Math.cos(phi);
+                let sinPhi = Math.sin(phi);
+
+                // 計算兩極緯度權重，越靠近極點，值越接近 1 (用來強制生成冰帽)
+                let latitudeWeight = Math.abs(ny); 
+
+                for (let x = 0; x < width; x++) {
+                    // u 從 0 到 1
+                    let u = x / width;
+                    // theta 經度角 (0 到 2PI)
+                    let theta = u * Math.PI * 2;
+                    
+                    // 完美的 3D 空間坐標系映射 (保證接縫與極點無變形)
+                    let nx = sinPhi * Math.cos(theta);
+                    let nz = sinPhi * Math.sin(theta);
+
+                    // 1. 生成地形高度 (使用 FBM 雜訊)
+                    let elevation = fbm(nx * scale, ny * scale, nz * scale, 6);
+                    // 2. 生成濕度/溫度分佈 (使用偏移後的雜訊)
+                    let moisture = fbm(nx * scale + 10, ny * scale + 10, nz * scale + 10, 4);
+
+                    let r, g, b;
+
+                    // --- 緯度氣候模型 ---
+                    if (latitudeWeight > 0.82 + (elevation * 0.1)) {
+                        // 南北極冰帽
+                        r = 245; g = 250; b = 255;
+                    } 
+                    else if (elevation < 0.48) {
+                        // 深海海溝
+                        r = 4; g = 16; b = 48;
+                    } 
+                    else if (elevation < 0.53) {
+                        // 大洋
+                        let depth = (elevation - 0.48) / 0.05; // 0~1
+                        r = 10 + 20 * depth; g = 30 + 40 * depth; b = 70 + 60 * depth;
+                    } 
+                    else if (elevation < 0.55) {
+                        // 大陸邊緣淺灘/沙灘
+                        r = 210; g = 190; b = 150;
+                    } 
+                    else if (elevation < 0.75) {
+                        // 陸地 (根據濕度區分沙漠與雨林)
+                        if (moisture < 0.4 && latitudeWeight < 0.4) {
+                            // 赤道沙漠
+                            r = 194; g = 178; b = 128;
+                        } else {
+                            // 植被地貌
+                            r = 20; g = 90 - (elevation - 0.55) * 100; b = 30;
+                        }
+                    } 
+                    else if (elevation < 0.88) {
+                        // 崇山峻嶺/岩石
+                        r = 100; g = 90; b = 80;
+                    } 
+                    else {
+                        // 頂峰積雪
+                        r = 240; g = 240; b = 240;
+                    }
+
+                    let idx = (y * width + x) * 4;
+                    data[idx] = r; data[idx+1] = g; data[idx+2] = b; data[idx+3] = 255;
+                }
             }
-            ctx.fillStyle = '#0a2a12';
-            drawContinent(ctx, 1100, 420, 500, 400); 
-            drawContinent(ctx, 500, 500, 280, 550); 
-            drawContinent(ctx, 1650, 780, 180, 140); 
-            ctx.fillStyle = '#f0f5ff'; 
-            drawContinent(ctx, 1024, 1000, 720, 90); 
-            ctx.globalCompositeOperation = 'source-atop';
-            for(let i=0; i<300; i++) {
-                ctx.fillStyle = `rgba(30, 90, 45, ${Math.random()*0.5})`;
-                ctx.beginPath();
-                ctx.arc(Math.random()*2048, Math.random()*1024, Math.random()*40, 0, Math.PI*2);
-                ctx.fill();
-            }
-            ctx.globalCompositeOperation = 'source-over';
-            for(let i=0; i<120; i++) {
-                const x = Math.random() * 2048;
-                const y = Math.random() * 1024;
-                const size = Math.random()*150+50;
-                const grad = ctx.createRadialGradient(x, y, 0, x, y, size);
-                grad.addColorStop(0, 'rgba(255, 255, 255, 0.15)');
-                grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.05)');
-                grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(x, y, size, 0, Math.PI*2);
-                ctx.fill();
-            }
-            for(let i=0; i<1500; i++) {
-                ctx.fillStyle = `rgba(255, 240, 180, ${Math.random() * 0.6})`;
-                ctx.fillRect(Math.random()*2048, Math.random()*1024, 1.2, 1.2);
-            }
+            ctx.putImageData(imgData, 0, 0);
             return new THREE.CanvasTexture(canvas);
         }
 
-        function drawContinent(ctx, x, y, w, h) {
-            ctx.beginPath();
-            ctx.ellipse(x, y, w/2, h/2, (Math.random()-0.5) * 0.2, 0, Math.PI * 2);
-            ctx.fill();
-            for(let i=0; i<12; i++) {
-                const ox = (Math.random()-0.5) * w * 1.2;
-                const oy = (Math.random()-0.5) * h * 1.2;
-                ctx.beginPath();
-                ctx.arc(x + ox, y + oy, Math.random()*(w/4), 0, Math.PI*2);
-                ctx.fill();
+        // 獨立的大氣雲層貼圖 (透明通道)
+        function createProceduralCloudsMap(width = 1024, height = 512) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            const imgData = ctx.createImageData(width, height);
+            const data = imgData.data;
+
+            const scale = 3.5; // 雲的頻率
+
+            for (let y = 0; y < height; y++) {
+                let phi = (y / height) * Math.PI; 
+                let ny = Math.cos(phi); let sinPhi = Math.sin(phi);
+                
+                // 模擬赤道氣流，加入旋轉扭曲
+                let swirl = Math.sin(ny * Math.PI) * 2.0;
+
+                for (let x = 0; x < width; x++) {
+                    let theta = (x / width) * Math.PI * 2 + swirl;
+                    let nx = sinPhi * Math.cos(theta);
+                    let nz = sinPhi * Math.sin(theta);
+
+                    // 高頻雜訊生成雲團
+                    let cloudVal = fbm(nx * scale - 100, ny * scale, nz * scale, 5);
+                    
+                    // 雲的閥值處理，形成塊狀與絲狀
+                    let alpha = 0;
+                    if (cloudVal > 0.55) {
+                        alpha = (cloudVal - 0.55) * 500;
+                        if (alpha > 255) alpha = 255;
+                    }
+
+                    let idx = (y * width + x) * 4;
+                    data[idx] = 255; data[idx+1] = 255; data[idx+2] = 255; data[idx+3] = alpha;
+                }
             }
+            ctx.putImageData(imgData, 0, 0);
+            return new THREE.CanvasTexture(canvas);
         }
 
         function createRealisticMoonTexture() {
             const canvas = document.createElement('canvas');
-            canvas.width = 1024; canvas.height = 512;
+            canvas.width = 512; canvas.height = 256;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#444444'; 
-            ctx.fillRect(0, 0, 1024, 512);
-            for(let i=0; i<30; i++) {
-                ctx.fillStyle = `rgba(30, 30, 30, 0.4)`;
-                ctx.beginPath();
-                ctx.arc(Math.random()*1024, Math.random()*512, Math.random()*120+40, 0, Math.PI*2);
-                ctx.fill();
-            }
-            for(let i=0; i<1200; i++) {
-                const b = 180 + Math.random() * 75; 
-                ctx.fillStyle = `rgba(${b}, ${b}, ${b}, ${Math.random()*0.5})`;
-                ctx.fillRect(Math.random()*1024, Math.random()*512, 1.5, 1.5);
+            ctx.fillStyle = '#666666'; ctx.fillRect(0, 0, 512, 256);
+            for(let i=0; i<40; i++) {
+                ctx.fillStyle = `rgba(30, 30, 30, 0.4)`; ctx.beginPath();
+                ctx.arc(Math.random()*512, Math.random()*256, Math.random()*40+10, 0, Math.PI*2); ctx.fill();
             }
             return new THREE.CanvasTexture(canvas);
         }
 
         function createShip(color) {
-            const shipGroup = new THREE.Group();
-            const scale = 0.5;
-            const body = new THREE.Mesh(
-                new THREE.BoxGeometry(0.2 * scale, 0.1 * scale, 0.5 * scale),
-                new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.5 })
-            );
-            const wing = new THREE.Mesh(
-                new THREE.BoxGeometry(0.6 * scale, 0.02 * scale, 0.2 * scale),
-                new THREE.MeshStandardMaterial({ color: color })
-            );
-            shipGroup.add(body);
-            shipGroup.add(wing);
-            return shipGroup;
+            const group = new THREE.Group(); const scale = 0.5;
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.2*scale, 0.1*scale, 0.5*scale), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.5 }));
+            const wing = new THREE.Mesh(new THREE.BoxGeometry(0.6*scale, 0.02*scale, 0.2*scale), new THREE.MeshStandardMaterial({ color }));
+            group.add(body); group.add(wing); return group;
         }
 
         const initHologram = () => {
@@ -642,73 +585,76 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-            const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
-            sunLight.position.set(10, 10, 10);
+            const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
+            sunLight.position.set(10, 8, 10);
             scene.add(sunLight);
 
+            // 星空
             const starsGeometry = new THREE.BufferGeometry();
-            const starsCount = window.innerWidth < 768 ? 1500 : 3000;
-            const starsPositions = new Float32Array(starsCount * 3);
-            for (let i = 0; i < starsCount * 3; i += 3) {
-                const r = 200 + Math.random() * 100;
-                const theta = Math.random() * Math.PI * 2;
-                const phi = Math.random() * Math.PI;
+            const starsPositions = new Float32Array(3000 * 3);
+            for (let i = 0; i < 9000; i += 3) {
+                const r = 200 + Math.random() * 100; const theta = Math.random() * Math.PI * 2; const phi = Math.random() * Math.PI;
                 starsPositions[i] = r * Math.sin(phi) * Math.cos(theta);
                 starsPositions[i+1] = r * Math.sin(phi) * Math.sin(theta);
                 starsPositions[i+2] = r * Math.cos(phi);
             }
             starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
-            const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.25, transparent: true, opacity: 0.7 });
-            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.3, transparent: true, opacity: 0.7 }));
             scene.add(stars);
 
-            const earthGroup = new THREE.Group();
-            scene.add(earthGroup);
+            const earthSystem = new THREE.Group();
+            scene.add(earthSystem);
 
-            const earth = new THREE.Mesh(
-                new THREE.SphereGeometry(2, 64, 64),
-                new THREE.MeshStandardMaterial({ 
-                    map: createRealisticEarthTexture(), 
-                    roughness: 0.8, 
-                    metalness: 0.1 
-                })
-            );
-            earthGroup.add(earth);
+            // 【核心渲染】：數學重構的地球表面
+            const earthGeo = new THREE.SphereGeometry(2, 64, 64);
+            const earthMat = new THREE.MeshStandardMaterial({ 
+                map: createProceduralEarthMap(1024, 512), // 即時運算地貌
+                roughness: 0.6, metalness: 0.1 
+            });
+            const earth = new THREE.Mesh(earthGeo, earthMat);
+            earthSystem.add(earth);
 
-            const moon = new THREE.Mesh(
-                new THREE.SphereGeometry(0.5, 32, 32),
-                new THREE.MeshStandardMaterial({ map: createRealisticMoonTexture() })
-            );
-            earthGroup.add(moon);
+            // 【物理大氣層】：獨立雲層與自轉
+            const cloudGeo = new THREE.SphereGeometry(2.03, 64, 64); // 比地球稍微大一點點
+            const cloudMat = new THREE.MeshStandardMaterial({
+                map: createProceduralCloudsMap(1024, 512),
+                transparent: true, depthWrite: false, opacity: 0.8
+            });
+            const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+            earthSystem.add(clouds);
 
-            const moonData = { radius: 7, speed: 0.003, angle: 0, inclination: 0.3 };
+            // 月球
+            const moon = new THREE.Mesh(new THREE.SphereGeometry(0.45, 32, 32), new THREE.MeshStandardMaterial({ map: createRealisticMoonTexture(), roughness: 0.9 }));
+            earthSystem.add(moon);
+
+            const moonData = { radius: 7.5, speed: 0.0035, angle: 0, inclination: 0.35 };
             const ships = [];
-
             for(let i=0; i<6; i++) {
-                const color = i < 3 ? 0x00ffff : 0xff9900;
-                const ship = createShip(color);
-                ship.userData = {
-                    team: i < 3 ? 'A' : 'B',
-                    speed: 0.015 + Math.random() * 0.01,
-                    offset: Math.random() * Math.PI * 2,
-                    radius: 3.8 + Math.random() * 1,
-                    yOffset: (Math.random() - 0.5) * 1,
-                    lastFire: 0
-                };
-                ships.push(ship);
-                earthGroup.add(ship);
+                const ship = createShip(i < 3 ? 0x00ffff : 0xff9900);
+                ship.userData = { speed: 0.015 + Math.random() * 0.01, offset: Math.random() * Math.PI * 2, radius: 3.5 + Math.random() * 1.5, yOffset: (Math.random() - 0.5) * 1.5 };
+                ships.push(ship); earthSystem.add(ship);
             }
 
-            camera.position.z = 15;
-            camera.position.y = 1;
-            earthGroup.position.y = 0.5;
-            camera.lookAt(0, 0.5, 0);
+            camera.position.z = 15; camera.position.y = 1;
+            earthSystem.position.y = 0.5; camera.lookAt(0, 0.5, 0);
+
+            // 移除加載畫面
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 500);
+            }, 100);
 
             let time = 0;
             const animate = () => {
                 requestAnimationFrame(animate);
                 time += 0.01;
-                earth.rotation.y += 0.0012;
+                
+                // 物理自轉：地球與雲層有微小的速度差
+                earth.rotation.y += 0.0010;
+                clouds.rotation.y += 0.0012; // 雲層移動稍快
+                clouds.rotation.z = Math.sin(time * 0.1) * 0.05; // 模擬氣候系統的微小傾斜
+
                 stars.rotation.y += 0.0001;
                 moonData.angle += moonData.speed;
                 moon.position.x = Math.cos(moonData.angle) * moonData.radius;
@@ -717,12 +663,11 @@
                 moon.rotation.y += 0.002;
 
                 ships.forEach((ship) => {
-                    const sd = ship.userData;
-                    const angle = time * sd.speed * 4 + sd.offset;
+                    const sd = ship.userData; const angle = time * sd.speed * 4 + sd.offset;
                     ship.position.x = Math.cos(angle) * sd.radius;
                     ship.position.z = Math.sin(angle) * sd.radius;
-                    ship.position.y = Math.sin(time * 0.5 + sd.offset) * 0.6 + sd.yOffset;
-                    ship.lookAt(Math.cos(angle+0.1)*sd.radius, Math.sin((time+0.025)*0.5+sd.offset)*0.6+sd.yOffset, Math.sin(angle+0.1)*sd.radius);
+                    ship.position.y = Math.sin(time * 0.5 + sd.offset) * 0.8 + sd.yOffset;
+                    ship.lookAt(Math.cos(angle+0.1)*sd.radius, Math.sin((time+0.025)*0.5+sd.offset)*0.8+sd.yOffset, Math.sin(angle+0.1)*sd.radius);
                 });
 
                 renderer.render(scene, camera);
@@ -730,41 +675,33 @@
             animate();
 
             window.addEventListener('resize', () => {
-                camera.aspect = section.clientWidth / section.clientHeight;
-                camera.updateProjectionMatrix();
+                camera.aspect = section.clientWidth / section.clientHeight; camera.updateProjectionMatrix();
                 renderer.setSize(section.clientWidth, section.clientHeight);
             });
         };
 
         function showToast(message) {
-            const t = document.getElementById('toast');
-            t.innerText = `>> ${message}`;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            const t = document.getElementById('toast'); t.innerText = `>> ${message}`;
+            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            initHologram();
+            // 因為即時演算 1024x512 像素地圖需要一點點 CPU 資源，所以包裝在 requestAnimationFrame 讓 UI 先刷新
+            requestAnimationFrame(() => {
+                setTimeout(initHologram, 50);
+            });
             const track = document.getElementById('sliderTrack');
-            const items = track.innerHTML;
-            track.innerHTML = items + items + items;
+            const items = track.innerHTML; track.innerHTML = items + items + items;
         });
 
         const backToTopBtn = document.getElementById('backToTop');
         window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) backToTopBtn.classList.add('show');
-            else backToTopBtn.classList.remove('show');
+            if (window.pageYOffset > 300) backToTopBtn.classList.add('show'); else backToTopBtn.classList.remove('show');
         });
 
         function copyIP() {
-            const ip = "C08.SERVER.VOID";
-            // 使用支援 iFrame 的複製方法
-            const el = document.createElement('textarea');
-            el.value = ip;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
+            const ip = "26.77.136.232"; const el = document.createElement('textarea'); el.value = ip;
+            document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
             showToast(`SUCCESS: ADDRESS [${ip}] COPIED`);
         }
     </script>
@@ -772,18 +709,19 @@
 </html>
     <!-- 
     ========================================================================
-    //  _   _   _   _   _   _           ____  _   _   ___ 
-    // | | | || | | || \ | |  ____   / ___|| | | ||_ _|
-    // | |_| || | | ||  \| | |____| | |    | |_| | | | 
-    //  \_ _/ | |_| || |\  |        | |___ |  _  | | | 
-    //   |_|  \__ __/|_| \_|         \____||_| |_||___|
-    //
-    // [ 系統架構 / System Architect ]
-    // Author: 張耘齊 (YUN-CHI)
-    // Project: C08 Minecraft Server Official Website
-    // Version:"Cyber Signature"
-    // Created: 2026-03-13~14
-    // 
-    // "Building the future block by block."
+    //  _   _  _   _  _   _           ____  _   _  ___                    //
+    // | | | || | | || \ | |  ____   / ___|| | | ||_ _|                   //
+    // | |_| || | | ||  \| | |____| | |    | |_| | | |                    //
+    //  \_ _/ | |_| || |\  |        | |___ |  _  | | |                    //   
+    //   |_|  \__ __/|_| \_|         \____||_| |_||___|                   //
+    //                                                                    //
+    // [系統架構 / System Architect]                                       //
+    // Author: 張耘齊 (YUN-CHI)                                            //
+    // Project: C08 Minecraft Server Official Website                     //
+    // Version:"Cyber Signature"                                          //
+    // Created: 2026-03-13~14                                             //           
+    // UpdateLog:3-15 1.0.0                                               //
+    //修復地球磨皮等數學運算函數、新增資料庫網頁連結、修復複製按鈕、優化卡片樣式 //
+    // "Building the future block by block."                              //      
     ========================================================================
     -->
