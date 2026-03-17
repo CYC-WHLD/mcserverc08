@@ -3,29 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>伺服器連線入口 </title>
+    <title>伺服器連線入口 | 山岳礦工藝</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- 引入字體與圖標庫 -->
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <!-- 字體與圖標庫 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Share+Tech+Mono&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
         :root {
-            --primary: #3b82f6;
-            --secondary: #8b5cf6;
-            --warning: #f59e0b;
-            --bg-dark: #020617;
-            --cyber-blue: #00d2ff;
-            --cyber-pink: #ff0055;
-            --cyber-yellow: #f0db4f;
-            --cyber-dark: #020205;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.18);
+            --java-color: #f59e0b;
+            --bedrock-color: #10b981;
         }
 
         body {
-            background-color: var(--bg-dark);
+            background-color: #020617;
             color: white;
-            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            font-family: 'Noto Sans TC', sans-serif;
             overflow-x: hidden;
             margin: 0;
             -webkit-tap-highlight-color: transparent;
@@ -34,6 +31,7 @@
         .font-mono { font-family: "Share Tech Mono", monospace; }
         .font-calligraphy { font-family: 'Ma Shan Zheng', cursive; }
 
+        /* 3D 背景 */
         #starfield-canvas {
             position: fixed;
             top: 0;
@@ -43,74 +41,90 @@
             z-index: -1;
         }
 
+        /* 進階液態玻璃卡片 (更強的毛玻璃 & 光澤) */
         .glass-card {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: linear-gradient(145deg, rgba(25, 30, 50, 0.35), rgba(10, 15, 30, 0.2));
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255,255,255,0.08), inset 0 -1px 1px rgba(0,0,0,0.2);
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.1), box-shadow 0.4s ease, border-color 0.3s;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), inset 0 1px 3px rgba(255,255,255,0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* 液態玻璃按鈕 (進階版) */
+        .liquid-btn {
+            position: relative;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-        }
-
-        /* 賽博龐克除錯卡片樣式 */
-        .cyber-debug-card {
-            position: relative;
-            background: rgba(10, 10, 15, 0.85);
-            border: 1px solid rgba(0, 210, 255, 0.2);
-            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
-            padding: 1.5rem;
+            overflow: visible;
             transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.05), 0 6px 16px rgba(0, 0, 0, 0.25);
         }
-        
-        .cyber-debug-card::before {
-            content: "";
+
+        .liquid-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.1), 0 12px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(70, 130, 255, 0.2);
+        }
+
+        .liquid-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* 行內複製 tooltip */
+        .copy-tooltip {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--cyber-yellow);
-            opacity: 0.5;
-        }
-
-        .cyber-debug-card:hover {
-            border-color: var(--cyber-yellow);
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(240, 219, 79, 0.15);
-        }
-
-        .cyber-debug-card:hover::before {
-            opacity: 1;
-            box-shadow: 0 0 10px var(--cyber-yellow);
-        }
-
-        .cyber-label {
-            font-family: "Share Tech Mono", monospace;
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: var(--cyber-yellow);
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        /* 掃描線動畫 */
-        .scanline {
-            width: 100%;
-            height: 1px;
-            background: rgba(0, 210, 255, 0.1);
-            position: absolute;
-            bottom: 20%;
-            left: 0;
+            top: -40px;
+            right: 0;
+            background: rgba(59, 130, 246, 0.85);
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.25);
+            opacity: 0;
+            transform: translateY(15px) scale(0.9);
             pointer-events: none;
-            animation: scanMove 4s linear infinite;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
+            z-index: 10;
         }
 
-        @keyframes scanMove {
-            0% { top: 0; }
-            100% { top: 100%; }
+        .copy-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            background: rgba(59, 130, 246, 0.85);
+            border-right: 1px solid rgba(255,255,255,0.25);
+            border-bottom: 1px solid rgba(255,255,255,0.25);
+            transform: rotate(45deg);
         }
 
+        .copy-tooltip.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* 導航欄 */
         .nav-container {
             position: absolute;
             top: 1.5rem;
@@ -121,54 +135,20 @@
         }
         
         .nav-glass {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(10, 15, 25, 0.6);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 999px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
 
-        .step-badge {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            padding: 2px 10px;
-            border-radius: 99px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .copy-success {
-            animation: popText 1.2s ease-out forwards;
-        }
-        @keyframes popText {
-            0% { opacity: 0; transform: translateY(0); }
-            20% { opacity: 1; transform: translateY(-10px); }
-            80% { opacity: 1; transform: translateY(-10px); }
-            100% { opacity: 0; transform: translateY(-20px); }
-        }
-
-        .infra-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        /* 頁尾樣式整合 */
         .footer-brand {
             font-family: 'Ma Shan Zheng', cursive;
             font-size: 26px;
             margin-bottom: 0.5rem;
-            opacity: 0.3;
+            opacity: 0.4;
             text-align: center;
             color: white;
         }
@@ -177,7 +157,7 @@
             font-size: 13.5px;
             line-height: 1.4;
             letter-spacing: 0.1em;
-            color: #374151;
+            color: #6b7280;
             max-width: 800px;
             margin: 0 auto;
             text-transform: uppercase;
@@ -187,8 +167,58 @@
             margin-top: 0.4rem;
             opacity: 0.8; 
             font-size: 11px;
-            color: #374151; 
+            color: #4b5563; 
             letter-spacing: 0.05em;
+        }
+
+        /* 漸層文字 */
+        .text-gradient-java {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(135deg, #fcd34d, #f59e0b);
+        }
+        .text-gradient-bedrock {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(135deg, #6ee7b7, #10b981);
+        }
+        .text-gradient-title {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to bottom, #ffffff, #60a5fa);
+        }
+
+        /* 滾動顯示動畫 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 教學數字圈 */
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* 自適應微調 */
+        @media (max-width: 640px) {
+            .glass-card { border-radius: 24px; }
+            .liquid-btn { border-radius: 18px; }
         }
     </style>
 </head>
@@ -196,266 +226,353 @@
 
     <canvas id="starfield-canvas"></canvas>
 
-    <!-- 導航欄：會隨頁面滾動消失 -->
+    <!-- 導航欄 (返回首頁) -->
     <nav class="nav-container">
         <div class="container mx-auto py-3 px-6 nav-glass flex justify-between items-center">
-            <!-- 返回鍵：更新為指定首頁連結 -->
-            <a href="https://cyc-whld.github.io/mcserverc08/index.html" class="text-white hover:text-[var(--cyber-blue)] transition-colors">
+            <a href="https://cyc-whld.github.io/mcserverc08/index.html" class="text-white hover:text-blue-400 transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
-            <div class="font-calligraphy text-xl text-white md:text-2xl">
-                伺服器<span class="text-[var(--cyber-blue)] ml-1">連線入口</span>
+            <div class="font-calligraphy text-xl text-white md:text-2xl tracking-widest">
+                伺服器<span class="text-blue-400 ml-1">連線入口</span>
             </div>
-            <div class="font-mono text-[10px] text-blue-400 hidden md:block">
-                SYS_STATUS: <span class="animate-pulse">ONLINE</span>
+            <div class="font-mono text-[10px] text-blue-400 hidden md:block px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+                SYSTEM_STATUS: <span class="animate-pulse text-green-400">ONLINE</span>
             </div>
-            <div class="font-mono text-[10px] text-blue-400 md:hidden">
-                <i class="fa-solid fa-signal animate-pulse"></i>
+            <div class="font-mono text-[10px] text-blue-400 md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/10">
+                <i class="fa-solid fa-signal animate-pulse text-green-400"></i>
             </div>
         </div>
     </nav>
 
-    <main class="relative z-10">
-        <!-- 主入口區 -->
-        <section class="min-h-screen flex flex-col items-center justify-center px-4 pt-40 pb-20 md:px-8">
-            <div class="text-center mb-10 md:mb-16">
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-b from-white to-blue-400 mb-2 tracking-tighter">
-                    Server Connection
-                </h1>
-                <p class="text-[var(--cyber-blue)] font-mono text-xs md:text-sm tracking-[0.4em] uppercase opacity-80">
-                    MOUNTAIN MINECRAFT ADVANCED TECH
-                </p>
+    <main class="relative z-10 pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-20">
+        
+        <!-- 頂部標題 -->
+        <header class="text-center mt-10">
+            <h1 class="text-4xl md:text-6xl font-black text-gradient-title mb-4 tracking-tight">
+                Server Connection
+            </h1>
+            <p class="text-blue-400 font-mono text-xs md:text-sm tracking-[0.3em] uppercase opacity-80">
+                Choose your platform to connect
+            </p>
+        </header>
+
+        <!-- 區塊1：連線資訊 (電腦版 & 手機版) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 reveal">
+            
+            <!-- 電腦版 (Java) 卡片 -->
+            <div class="glass-card p-6 md:p-8 relative overflow-hidden group">
+                <div class="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/20 rounded-full blur-3xl pointer-events-none transition-all group-hover:bg-amber-500/30"></div>
                 
-                <div class="flex flex-wrap justify-center gap-3 mt-8">
-                    <button class="px-5 py-1.5 rounded-full border border-[var(--cyber-blue)] text-[var(--cyber-blue)] text-[10px] font-bold uppercase bg-[var(--cyber-blue)]/10 hover:bg-[var(--cyber-blue)]/20 transition-all">
-                        連線節點概覽
-                    </button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl w-full">
-                <!-- VPN 連線卡片 -->
-                <div class="glass-card p-6 md:p-8 flex flex-col justify-between group">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center backdrop-blur-md">
+                        <i class="fa-brands fa-java text-2xl text-amber-400"></i>
+                    </div>
                     <div>
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="step-badge">STEP 01</span>
-                            <i class="fa-solid fa-shield-halved text-blue-400/30"></i>
-                        </div>
-                        <h2 class="text-2xl md:text-3xl font-bold mb-2 text-white">Radmin VPN</h2>
-                        <p class="text-gray-400 text-sm mb-6">請先啟動 VPN 以進入區域網環境。</p>
-                        <div class="space-y-3">
-                            <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center active:bg-white/10 transition-all cursor-pointer" onclick="copyText('vpnUser', '帳號')">
-                                <div class="overflow-hidden">
-                                    <p class="text-[9px] text-gray-500 uppercase font-mono">Username</p>
-                                    <p class="font-mono text-blue-300 truncate" id="vpnUser">308MC_server</p>
-                                </div>
-                                <i class="fa-regular fa-copy text-gray-600"></i>
-                            </div>
-                            <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center active:bg-white/10 transition-all cursor-pointer" onclick="copyText('vpnPass', '密碼')">
-                                <div class="overflow-hidden">
-                                    <p class="text-[9px] text-gray-500 uppercase font-mono">Password</p>
-                                    <p class="font-mono text-purple-300 truncate" id="vpnPass">000000</p>
-                                </div>
-                                <i class="fa-regular fa-copy text-gray-600"></i>
-                            </div>
-                        </div>
+                        <h2 class="text-2xl font-bold text-gradient-java tracking-wide">電腦版 (Java)</h2>
+                        <p class="text-sm text-gray-400 font-mono mt-1 tracking-wider">RADMIN VPN CONNECTION</p>  <!-- 調大為 text-sm -->
                     </div>
                 </div>
 
-                <!-- 伺服器 IP 卡片 -->
-                <div class="glass-card p-6 md:p-8 flex flex-col justify-between group">
-                    <div>
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="step-badge">STEP 02</span>
-                            <i class="fa-solid fa-server text-green-400/30"></i>
+                <div class="space-y-4">
+                    <div class="liquid-btn p-4 flex justify-between items-center" onclick="copyText('javaUser', this, '帳號')">
+                        <div class="copy-tooltip">帳號已複製 <i class="fa-solid fa-check ml-1"></i></div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">Radmin 帳號</p>   <!-- 10px -> text-xs -->
+                            <p class="font-mono text-amber-100 text-xl" id="javaUser">308MC_server</p>   <!-- text-lg -> text-xl -->
                         </div>
-                        <h2 class="text-2xl md:text-3xl font-bold mb-2 text-white">伺服器位址</h2>
-                        <p class="text-gray-400 text-sm mb-6">確認 VPN 已連接後，即可連線。</p>
-                        <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center active:bg-white/10 transition-all cursor-pointer" onclick="copyText('serverIp', '伺服器位址')">
-                            <div class="overflow-hidden">
-                                <p class="text-[9px] text-gray-500 uppercase font-mono">Server IP</p>
-                                <p class="font-mono text-green-300 truncate" id="serverIp">26.77.136.232</p>
-                            </div>
-                            <i class="fa-regular fa-copy text-gray-600"></i>
+                        <i class="fa-regular fa-copy text-amber-500/60 group-hover:text-amber-400 transition-colors"></i>
+                    </div>
+
+                    <div class="liquid-btn p-4 flex justify-between items-center" onclick="copyText('javaPass', this, '密碼')">
+                        <div class="copy-tooltip">密碼已複製 <i class="fa-solid fa-check ml-1"></i></div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">Radmin 密碼</p>
+                            <p class="font-mono text-amber-100 text-xl" id="javaPass">000000</p>
                         </div>
+                        <i class="fa-regular fa-copy text-amber-500/60 transition-colors"></i>
+                    </div>
+
+                    <div class="liquid-btn p-4 flex justify-between items-center" onclick="copyText('javaIp', this, 'IP位址')">
+                        <div class="copy-tooltip">IP已複製 <i class="fa-solid fa-check ml-1"></i></div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">伺服器 IP (遊戲內輸入)</p>
+                            <p class="font-mono text-green-300 text-xl" id="javaIp">26.77.136.232</p>
+                        </div>
+                        <i class="fa-regular fa-copy text-amber-500/60 transition-colors"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-16 md:mt-24 flex flex-col items-center gap-4 text-gray-500">
-                <p class="text-[10px] tracking-widest uppercase font-mono">滾動以下滑</p>
-                <div class="w-px h-12 bg-gradient-to-b from-blue-500 to-transparent"></div>
+            <!-- 手機版 (Bedrock) 卡片 -->
+            <div class="glass-card p-6 md:p-8 relative overflow-hidden group">
+                <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none transition-all group-hover:bg-emerald-500/30"></div>
+                
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center backdrop-blur-md">
+                        <i class="fa-solid fa-mobile-screen-button text-xl text-emerald-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gradient-bedrock tracking-wide">手機版 (Bedrock)</h2>
+                        <p class="text-sm text-gray-400 font-mono mt-1 tracking-wider">TAILSCALE VPN CONNECTION</p>  <!-- text-sm -->
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="liquid-btn p-4 flex justify-between items-center" onclick="copyText('bedrockUser', this, 'Gmail')">
+                        <div class="copy-tooltip">Gmail已複製 <i class="fa-solid fa-check ml-1"></i></div>
+                        <div class="overflow-hidden">
+                            <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">專用 Gmail (登入Tailscale)</p>  <!-- text-xs -->
+                            <p class="font-mono text-emerald-100 text-base md:text-lg truncate" id="bedrockUser">minecraftc08server@gmail.com</p>
+                        </div>
+                        <i class="fa-regular fa-copy text-emerald-500/60 transition-colors shrink-0 ml-2"></i>
+                    </div>
+
+                    <div class="liquid-btn p-4 flex justify-between items-center" onclick="copyText('bedrockPass', this, '密碼')">
+                        <div class="copy-tooltip">密碼已複製 <i class="fa-solid fa-check ml-1"></i></div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">Gmail 密碼</p>
+                            <p class="font-mono text-emerald-100 text-xl" id="bedrockPass">mcserver08260124</p>
+                        </div>
+                        <i class="fa-regular fa-copy text-emerald-500/60 transition-colors"></i>
+                    </div>
+
+                    <!-- 修復：埠號複製按鈕補上圖標，統一排版 -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-2 liquid-btn p-4 flex justify-between items-center" onclick="copyText('bedrockIp', this, 'IP位址')">
+                            <div class="copy-tooltip">IP已複製 <i class="fa-solid fa-check ml-1"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">伺服器 IP</p>
+                                <p class="font-mono text-green-300 text-xl" id="bedrockIp">100.109.154.123</p>
+                            </div>
+                            <i class="fa-regular fa-copy text-emerald-500/60 transition-colors"></i>
+                        </div>
+                        <div class="col-span-1 liquid-btn p-4 flex justify-between items-center" onclick="copyText('bedrockPort', this, '埠號')">
+                            <div class="copy-tooltip">埠號已複製 <i class="fa-solid fa-check ml-1"></i></div>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">埠號</p>
+                                <p class="font-mono text-emerald-100 text-xl" id="bedrockPort">19132</p>
+                            </div>
+                            <!-- 原本缺少複製圖示，現在加上 -->
+                            <i class="fa-regular fa-copy text-emerald-500/60 transition-colors"></i>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-500 mt-2 ml-2"><i class="fa-solid fa-circle-info mr-1"></i>基岩版埠號預設19132，通常無需更改。</p>
+                </div>
             </div>
         </section>
 
-        <!-- 賽博龐克除錯區塊 -->
-        <section class="max-w-5xl mx-auto px-6 pb-32">
-            <div class="reveal mb-20">
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-white/10 pb-6">
-                    <div>
-                        <span class="font-mono text-[var(--cyber-yellow)] text-xs tracking-widest block mb-2">// EMERGENCY PROTOCOLS</span>
-                        <h2 class="text-4xl md:text-5xl font-black italic tracking-tighter text-white uppercase">
-                            除錯程序<span class="text-[var(--cyber-yellow)]">診斷</span>
-                        </h2>
-                    </div>
-                    <div class="font-mono text-right hidden md:block">
-                        <p class="text-[10px] text-gray-500">連線除錯</p>
-                        <p class="text-[10px] text-gray-500">Connection Troubleshooting</p>
+        <!-- 區塊2：連線教學 (中間) -->
+        <section class="reveal">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-white tracking-widest mb-2">CONNECTION GUIDE</h2>
+                <div class="w-16 h-1 bg-blue-500 mx-auto rounded-full opacity-50"></div>
+                <p class="text-gray-400 mt-4 text-sm">請依照您的裝置選擇對應連線方式</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Java 教學 -->
+                <div class="glass-card p-6 md:p-8">
+                    <h3 class="text-xl font-bold text-amber-400 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-desktop"></i> 電腦版連線步驟
+                    </h3>
+                    <div class="space-y-5">
+                        <div class="flex items-start gap-4">
+                            <div class="step-circle bg-amber-500/20 text-amber-400 border border-amber-500/30">1</div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">下載並安裝 Radmin VPN</h4>
+                                <p class="text-sm text-gray-400">前往官方網站下載 Radmin VPN 並完成安裝。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-circle bg-amber-500/20 text-amber-400 border border-amber-500/30">2</div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">加入現有網路</h4>
+                                <p class="text-sm text-gray-400">開啟軟體，點選「網路」>「加入網路」，輸入上方的<span class="text-amber-200 mx-1">Radmin 帳號與密碼</span>。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-circle bg-amber-500/20 text-amber-400 border border-amber-500/30">3</div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">進入遊戲新增伺服器</h4>
+                                <p class="text-sm text-gray-400">確認 VPN 連線亮綠燈，開啟 Minecraft Java 版，將<span class="text-green-300 mx-1">伺服器 IP</span>貼入位址欄位即可連線。</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- 診斷項 01 -->
-                    <div class="cyber-debug-card group">
-                        <div class="scanline"></div>
-                        <span class="cyber-label">01 // CONNECTED</span>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">檢查VPN是否連線 </h4>
-                        <p class="text-gray-400 text-xs leading-relaxed font-mono">
-                            STATUS: OFFLINE? <br>
-                            確認狀態顯示為「已連線」。若訊號低於三格，請嘗試工作管理員關閉重連。
-                        </p>
-                    </div>
-
-                    <!-- 診斷項 02 -->
-                    <div class="cyber-debug-card group">
-                        <div class="scanline"></div>
-                        <span class="cyber-label">02 // AUTH</span>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">資訊校驗</h4>
-                        <p class="text-gray-400 text-xs leading-relaxed font-mono">
-                            TOKEN_MISMATCH? <br>
-                            點擊上方卡片會自動複製，手動輸入可能會遺漏字元或包含隱形空格。
-                        </p>
-                    </div>
-
-                    <!-- 診斷項 03 -->
-                    <div class="cyber-debug-card group">
-                        <div class="scanline"></div>
-                        <span class="cyber-label">03 // VERSION</span>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">版本確認</h4>
-                        <p class="text-gray-400 text-xs leading-relaxed font-mono">
-                            VERSION_MATCH? <br>
-                            目前伺服器版本為1.21.11，過高或過低將無法連線
-                        </p>
-                        
-                    </div>
-
-                    <!-- 診斷項 04 -->
-                    <div class="cyber-debug-card group">
-                        <div class="scanline"></div>
-                        <span class="cyber-label">04 // Privacy Options</span>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[var(--cyber-yellow)] transition-colors">隱私設定</h4>
-                        <p class="text-gray-400 text-xs leading-relaxed font-mono">
-                            ACCESS_DENIED? <br>
-                            1.確認無連線節點跳動(客戶端)如已確認往下閱讀<br>
-                            2.進入 Microsoft 檢查帳號設定 <br>
-                                 a.登入 Microsoft 網站 的隱私與線上安全分頁。<br>
-                                 b.在「Xbox 和 Windows 10 裝置的線上安全」中，確認「您可以加入多人遊戲」設為「允許」。
-                        </p>
+                <!-- Bedrock 教學 -->
+                <div class="glass-card p-6 md:p-8">
+                    <h3 class="text-xl font-bold text-emerald-400 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-mobile-screen"></i> 手機版連線步驟
+                    </h3>
+                    <div class="space-y-5">
+                        <div class="flex items-start gap-4">
+                            <div class="step-circle bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">1</div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">下載 Tailscale VPN</h4>
+                                <p class="text-sm text-gray-400">App Store / Google Play 搜尋「Tailscale」。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-circle bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">2</div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">使用專用 Gmail 登入</h4>
+                                <p class="text-sm text-gray-400">開啟 App，使用 Google 登入並輸入上方的<span class="text-emerald-200 mx-1">專用 Gmail 與密碼</span>。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-circle bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">3</div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">新增伺服器</h4>
+                                <p class="text-sm text-gray-400">Minecraft「遊玩」>「伺服器」>「新增伺服器」，輸入<span class="text-green-300 mx-1">IP</span>及<span class="text-emerald-200 mx-1">埠號(19132)</span>。</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 專業伺服器架構與託管方案 -->
-            <div class="reveal">
-                <div class="flex items-center gap-4 mb-10">
+            <!-- 新增：連線疑難排解 (連不上去的除錯教學) -->
+            <div class="mt-8 glass-card p-6 md:p-8">
+                <h3 class="text-xl font-bold text-red-400 mb-5 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i> 無法連線？常見問題排除
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm text-gray-300">
+                    <div class="flex gap-3">
+                        <i class="fa-solid fa-wifi text-red-300 mt-1"></i>
+                        <div><span class="text-white font-medium">VPN 未連線：</span>Radmin 需顯示綠色勾，Tailscale 狀態為 Connected。</div>
+                    </div>
+                    <div class="flex gap-3">
+                        <i class="fa-solid fa-shield-halved text-red-300 mt-1"></i>
+                        <div><span class="text-white font-medium">防火牆阻擋：</span>嘗試暫時關閉防火牆或允許 Minecraft / VPN 通過。</div>
+                    </div>
+                    <div class="flex gap-3">
+                        <i class="fa-solid fa-rotate-right text-red-300 mt-1"></i>
+                        <div><span class="text-white font-medium">版本不符：</span>確認遊戲版本是否為伺服器支援版本 (Java 1.20+ / Bedrock 1.20+)。</div>
+                    </div>
+                    <div class="flex gap-3">
+                        <i class="fa-solid fa-clock text-red-300 mt-1"></i>
+                        <div><span class="text-white font-medium">逾時/重啟：</span>伺服器三天或不定時備份重啟，可能短暫離線，稍後再試。</div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 mt-4 border-t border-white/10 pt-3"><i class="fa-regular fa-lightbulb mr-1"></i> 如果已連線然後掉線，請重啟VPN (並不是關掉VPN，是斷線重連)</p>
+            </div>
+        </section>
+
+        <!-- 區塊3：伺服器優勢 & 後端託管架構 (底部) -->
+        <section class="reveal space-y-8">
+            <!-- 原有優勢卡片 (稍作強化) -->
+            <div class="glass-card p-6 md:p-10">
+                <div class="flex items-center gap-4 mb-8">
                     <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/40">
                         <i class="fa-solid fa-microchip text-blue-400"></i>
                     </div>
-                    <h2 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
-                        伺服器後端託管架構
+                    <h2 class="text-2xl md:text-3xl font-bold text-white">
+                        伺服器效能與優勢
                     </h2>
                 </div>
 
-                <div class="infra-grid">
-                    <div class="glass-card p-6 relative overflow-hidden">
-                        <div class="absolute -right-4 -bottom-4 text-blue-500/10 scale-150">
-                            <i class="fa-solid fa-cloud text-6xl"></i>
-                        </div>
-                        <h4 class="text-xl font-bold text-blue-300 mb-3">虛擬專用伺服器 (VPS)</h4>
-                        <p class="text-gray-400 text-xs leading-relaxed mb-4 italic font-mono">INFRA_VIRTUALIZATION</p>
-                        <p class="text-gray-300 text-sm leading-relaxed">
-                            採用高端實體伺服器切割出的獨立虛擬環境。<br>
-                            提供固定的 IP 與高速連線能力，是專業 Minecraft 伺服器的首選。<br>
-                            雲端網路託管商通常提供DDoS流量防護<br>
-                            位於節點前端的清洗中心，能夠過濾惡意攻擊封包，確保在遭受攻擊時，玩家連線依然保持極低延遲。<br>
-                            通常分為10GB~1TB不同方案。
-
-                        </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <i class="fa-solid fa-rocket text-3xl text-purple-400 mb-4 block"></i>
+                        <h4 class="text-lg font-bold text-purple-300 mb-2">極致效能優化</h4>
+                        <ul class="text-sm text-gray-300 space-y-2 list-disc list-inside">
+                            <li>預生成半徑 <span class="text-white font-mono">出生點半徑5000</span> 格，跑圖不卡頓</li>
+                            <li>安裝優化、預加載、跨平台模組 </li>
+                            <li>平均運算延遲僅 <span class="text-green-400 font-mono">6ms</span></li>
+                            <li class="mt-2 pt-2 border-t border-white/10 text-purple-200 font-bold">166 TPS 超低延遲！</li>
+                        </ul>
                     </div>
-                    <div class="glass-card p-6 relative overflow-hidden">
-                        <div class="absolute -right-4 -bottom-4 text-purple-500/10 scale-150">
-                            <i class="fa-solid fa-shield-virus text-6xl"></i>
-                        </div>
-                        <h4 class="text-xl font-bold text-purple-300 mb-3">私人實體主機</h4>
-                        <p class="text-gray-400 text-xs leading-relaxed mb-4 italic font-mono">DEDICATED_SERVER</p>
-                        <p class="text-gray-300 text-sm leading-relaxed">
-                            營運要求較虛擬機高，升級成本貴，但是效能高於虛擬機<br>
-                            本伺服器使用實體機運營<br>
-                            相關配置:<br>
-                            CPU: Intel i5-10500 <br>
-                            GPU: Intel UHD Graphics 630 <br>
-                            RAM: 40GB /［ 32GB 用於運行伺服器 ］
-                        </p>
-                    </div>
-                    <div class="glass-card p-6 relative overflow-hidden md:col-span-2">
-                        <h4 class="text-xl font-bold text-indigo-300 mb-3">伺服器基礎資訊( Base DATA )</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 text-[10px] uppercase font-mono">
-                            <div class="p-3 border border-blue-500/30 rounded-lg bg-blue-500/5">
-                                <i class="fa-solid fa-bolt text-blue-400 mb-2 block"></i>
-                                <span class="text-blue-300 font-bold">自動備份系統</span>
-                                <p class="text-gray-500 mt-1">每 72 小時異地同步資料快照。</p>
-                            </div>
-                            <div class="p-3 border border-indigo-500/30 rounded-lg bg-indigo-500/5">
-                                <i class="fa-solid fa-gauge-high text-indigo-400 mb-2 block"></i>
-                                <span class="text-indigo-300 font-bold">每秒刻數</span>
-                                <p class="text-gray-500 mt-1">Ticks Per Second : 通常介於16~20 TPS</p>
-                            </div>
-                            <div class="p-3 border border-purple-500/30 rounded-lg bg-purple-500/5">
-                                <i class="fa-solid fa-database text-purple-400 mb-2 block"></i>
-                                <span class="text-purple-300 font-bold">極速 SSD 陣列</span>
-                                <p class="text-gray-500 mt-1">NVMe 陣列提供極高的讀寫效能。</p>
-                            </div>
-                        </div>
-                        <!-- 暫時無用
-                        <p class="text-gray-300 text-sm leading-relaxed mt-4">
-                        -->
 
-                            
-                        </p>
+                    <div class="p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <i class="fa-solid fa-server text-3xl text-blue-400 mb-4 block"></i>
+                        <h4 class="text-lg font-bold text-blue-300 mb-2">私人實體主機</h4>
+                        <p class="text-xs text-gray-400 font-mono mb-2">DEDICATED_SERVER</p>
+                        <ul class="text-sm text-blue-200 font-mono space-y-1 bg-black/30 p-3 rounded-xl border border-black/50">
+                            <li>CPU: Intel i5-10500</li>
+                            <li>RAM: 40GB (32GB 專用)</li>
+                            <li>100GB 預撥 SSD 儲存空間</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <i class="fa-solid fa-network-wired text-3xl text-emerald-400 mb-4 block"></i>
+                        <h4 class="text-lg font-bold text-emerald-300 mb-2">資料防護</h4>
+                        <ul class="text-sm text-gray-300 space-y-3">
+                            <li><i class="fa-solid fa-database text-emerald-400 mr-1"></i>NVMe 極速讀寫</li>
+                            <li><i class="fa-solid fa-clock-rotate-left text-emerald-400 mr-1"></i>平均每72小時異地備份</li>
+                            <li><i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i>私人局域網防止流量攻擊</li>
+                        </ul>
                     </div>
                 </div>
             </div>
+
+            <!-- 新增：後端託管架構講解 -->
+            <div class="glass-card p-6 md:p-10">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/40">
+                        <i class="fa-solid fa-sitemap text-indigo-400"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-white">
+                        後端託管架構拓撲
+                    </h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-cube text-indigo-300 mt-1"></i>
+                            <div><span class="text-indigo-200 font-medium">實體隔離層：</span>伺服器運行於獨立實體主機，無鄰居干擾問題，保證運算資源獨享。</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-cloud text-indigo-300 mt-1"></i>
+                            <div><span class="text-indigo-200 font-medium">虛擬化中繼：</span>透過 Proxmox VE 虛擬化，建立專屬 Minecraft 容器，快照備份即時恢復。</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-shield text-indigo-300 mt-1"></i>
+                            <div><span class="text-indigo-200 font-medium">安全閘道：</span>前置 Nginx 反向代理 + Fail2Ban，過濾異常流量，僅允許 VPN 白名單連入。</div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-diagram-project text-indigo-300 mt-1"></i>
+                            <div><span class="text-indigo-200 font-medium">雙線路備援：</span>中華電信/SEEDNet 雙線路，並啟用 BGP 路由優化，降低跨海延遲。</div>
+                        </div>
+                    </div>
+                    <div class="bg-white/5 rounded-2xl border border-white/10 p-5 flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-chart-line text-4xl text-indigo-400 mb-3"></i>
+                        <p class="text-sm text-gray-300 text-center leading-relaxed">
+                            <span class="text-indigo-200 font-bold">伺服器採用</span><br>
+                            實體主機於<br>御用兩位免費勞工管理人<br>24小時不停服<br>吃蘋果
+                        </p>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 mt-6 border-t border-white/10 pt-3"><i class="fa-regular fa-note-sticky mr-1"></i> 伺服器軟硬體由勞工 YUNCHI跟 Itsuki_Iridium 共同維護</p>
         </section>
 
-        <!-- 頁尾浮水印模塊 -->
-        <footer class="py-12 border-t border-white/5 bg-[#030307]">
-            <div class="container mx-auto px-4">
-                <div class="footer-brand">
-                    山岳<span style="color: var(--cyber-blue);">礦工藝</span>
-                </div>
-                
-                <div class="footer-text">
-                    Copyright © 2026 山岳礦工藝團隊. All rights reserved.<br>
-                    Website developed by Inperial Storm. Server functions by Itsuki_Iridium.
-                    
-                    <div class="footer-legal">
-                        NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG.
-                    </div>
-                </div>
-            </div>
-        </footer>
     </main>
 
-    <div id="copy-notify" class="fixed inset-0 pointer-events-none flex items-center justify-center z-[2000]"></div>
+    <!-- 頁尾 -->
+    <footer class="py-12 border-t border-white/10 bg-[#02040a] relative z-10">
+        <div class="container mx-auto px-4">
+            <div class="footer-brand">
+                山岳<span class="text-blue-400">礦工藝</span>
+            </div>
+            <div class="footer-text">
+                Copyright © 2026 山岳礦工藝團隊. All rights reserved.<br>
+                Website developed by Inperial Storm. Server functions by Itsuki_Iridium.
+                <div class="footer-legal">
+                    NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG.
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
+        // --- Three.js 背景 (蟲洞調小，更容易看全貌) ---
         let scene, camera, renderer, stars, wormhole;
         let mouseX = 0, mouseY = 0;
         
         function initSpace() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 5;
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000); // 視角稍微調整
+            camera.position.z = 6; // 拉遠一點點，容納更小蟲洞
 
             renderer = new THREE.WebGLRenderer({
                 canvas: document.getElementById('starfield-canvas'),
@@ -467,31 +584,33 @@
 
             const isMobile = window.innerWidth < 768;
 
-            const starCount = isMobile ? 1500 : 4000;
+            // 星星 (數量微調)
+            const starCount = isMobile ? 1200 : 3000;
             const starGeometry = new THREE.BufferGeometry();
             const starPositions = new Float32Array(starCount * 3);
             for (let i = 0; i < starCount; i++) {
-                starPositions[i * 3] = (Math.random() - 0.5) * 25;
-                starPositions[i * 3 + 1] = (Math.random() - 0.5) * 25;
-                starPositions[i * 3 + 2] = (Math.random() - 0.5) * 25;
+                starPositions[i * 3] = (Math.random() - 0.5) * 30;
+                starPositions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+                starPositions[i * 3 + 2] = (Math.random() - 0.5) * 30;
             }
             starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-            stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.012, transparent: true, opacity: 0.4 }));
+            stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.01, transparent: true, opacity: 0.4 }));
             scene.add(stars);
 
-            const wormholeParticleCount = isMobile ? 4000 : 12000;
-            const wormholeGeo = new THREE.TorusGeometry(3.5, 1.2, 40, 120);
+            // 蟲洞變小 (半徑從3.5 -> 2.2，管徑從1.2 -> 0.7)
+            const wormholeParticleCount = isMobile ? 3000 : 8000;
+            const wormholeGeo = new THREE.TorusGeometry(2.2, 0.7, 40, 100);
             const wormholePos = wormholeGeo.attributes.position.array;
             const wormholeFinalPositions = new Float32Array(wormholeParticleCount * 3);
             for (let i = 0; i < wormholeParticleCount; i++) {
                 const idx = Math.floor(Math.random() * (wormholePos.length / 3));
-                wormholeFinalPositions[i * 3] = wormholePos[idx * 3] + (Math.random() - 0.5) * 0.1;
-                wormholeFinalPositions[i * 3 + 1] = wormholePos[idx * 3 + 1] + (Math.random() - 0.5) * 0.1;
-                wormholeFinalPositions[i * 3 + 2] = wormholePos[idx * 3 + 2] + (Math.random() - 0.5) * 0.1;
+                wormholeFinalPositions[i * 3] = wormholePos[idx * 3] + (Math.random() - 0.5) * 0.08;
+                wormholeFinalPositions[i * 3 + 1] = wormholePos[idx * 3 + 1] + (Math.random() - 0.5) * 0.08;
+                wormholeFinalPositions[i * 3 + 2] = wormholePos[idx * 3 + 2] + (Math.random() - 0.5) * 0.08;
             }
             const wormholeBufferGeo = new THREE.BufferGeometry();
             wormholeBufferGeo.setAttribute('position', new THREE.BufferAttribute(wormholeFinalPositions, 3));
-            wormhole = new THREE.Points(wormholeBufferGeo, new THREE.PointsMaterial({ color: 0x3b82f6, size: 0.008, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending }));
+            wormhole = new THREE.Points(wormholeBufferGeo, new THREE.PointsMaterial({ color: 0x3b82f6, size: 0.01, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending }));
             wormhole.rotation.x = Math.PI / 1.8;
             scene.add(wormhole);
 
@@ -500,13 +619,16 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            stars.rotation.y += 0.0003;
-            wormhole.rotation.z += 0.0025;
-            const time = Date.now() * 0.0008;
-            wormhole.scale.set(1 + Math.sin(time) * 0.08, 1 + Math.sin(time) * 0.08, 1 + Math.sin(time) * 0.08);
-            camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.05;
+            stars.rotation.y += 0.0002;
+            wormhole.rotation.z += 0.002;
+            wormhole.rotation.y += 0.001; // 增加動態
+            const time = Date.now() * 0.001;
+            wormhole.scale.set(1 + Math.sin(time) * 0.05, 1 + Math.sin(time) * 0.05, 1 + Math.sin(time) * 0.05);
+            
+            camera.position.x += (mouseX * 2.0 - camera.position.x) * 0.04;
+            camera.position.y += (-mouseY * 2.0 - camera.position.y) * 0.04;
             camera.lookAt(scene.position);
+            
             renderer.render(scene, camera);
         }
 
@@ -522,7 +644,8 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        function copyText(elementId, label) {
+        // --- 複製文字功能 (保留) ---
+        function copyText(elementId, btnElement, label) {
             const text = document.getElementById(elementId).innerText;
             const el = document.createElement('textarea');
             el.value = text;
@@ -530,14 +653,18 @@
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            const notify = document.getElementById('copy-notify');
-            const div = document.createElement('div');
-            div.className = 'copy-success text-blue-400 font-bold bg-slate-900/90 backdrop-blur-xl px-6 py-3 rounded-full border border-blue-500/40 text-sm shadow-2xl';
-            div.innerText = `${label} 已複製`;
-            notify.appendChild(div);
-            setTimeout(() => div.remove(), 1200);
+
+            const tooltip = btnElement.querySelector('.copy-tooltip');
+            if(tooltip) {
+                if(tooltip.timeoutId) clearTimeout(tooltip.timeoutId);
+                tooltip.classList.add('show');
+                tooltip.timeoutId = setTimeout(() => {
+                    tooltip.classList.remove('show');
+                }, 1500);
+            }
         }
 
+        // --- 滾動顯示動畫 ---
         function reveal() {
             const reveals = document.querySelectorAll(".reveal");
             const triggerBottom = window.innerHeight * 0.9;
@@ -547,7 +674,11 @@
             });
         }
         window.addEventListener("scroll", reveal, { passive: true });
-        window.onload = () => { initSpace(); reveal(); };
+        
+        window.onload = () => { 
+            initSpace(); 
+            setTimeout(reveal, 100); 
+        };
     </script>
 </body>
 </html>
