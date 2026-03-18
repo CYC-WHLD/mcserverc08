@@ -295,8 +295,8 @@
                     <div class="liquid-btn p-4 flex justify-between items-center" onclick="copyText('javaIp', this, 'IP位址')">
                         <div class="copy-tooltip">IP已複製 <i class="fa-solid fa-check ml-1"></i></div>
                         <div>
-                            <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">伺服器 IP (遊戲內輸入)</p>
-                            <p class="font-mono text-green-300 text-xl" id="javaIp">26.77.136.232</p>
+                            <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">伺服器 IP </p>
+                            <p class="font-mono text-amber-300 text-xl" id="javaIp">26.77.136.232</p>
                         </div>
                         <i class="fa-regular fa-copy text-amber-500/60 transition-colors"></i>
                     </div>
@@ -336,27 +336,19 @@
                         <i class="fa-regular fa-copy text-emerald-500/60 transition-colors"></i>
                     </div>
 
-                    <!-- 修復：埠號複製按鈕補上圖標，統一排版 -->
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="col-span-2 liquid-btn p-4 flex justify-between items-center" onclick="copyText('bedrockIp', this, 'IP位址')">
-                            <div class="copy-tooltip">IP已複製 <i class="fa-solid fa-check ml-1"></i></div>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">伺服器 IP</p>
-                                <p class="font-mono text-green-300 text-xl" id="bedrockIp">100.109.154.123</p>
-                            </div>
-                            <i class="fa-regular fa-copy text-emerald-500/60 transition-colors"></i>
+                    <!-- 修復：埠號 -->
+                   
+
+                    
+                        <div class="liquid-btn p-4 flex justify-between items-center" onclick="copyText('javaIp', this, 'IP位址')">
+                        <div class="copy-tooltip">IP已複製 <i class="fa-solid fa-check ml-1"></i></div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">伺服器 IP </p>
+                            <p class="font-mono text-green-300 text-xl" id="javaIp">100.109.154.123</p>
                         </div>
-                        <div class="col-span-1 liquid-btn p-4 flex justify-between items-center" onclick="copyText('bedrockPort', this, '埠號')">
-                            <div class="copy-tooltip">埠號已複製 <i class="fa-solid fa-check ml-1"></i></div>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase font-mono tracking-wider mb-1">埠號</p>
-                                <p class="font-mono text-emerald-100 text-xl" id="bedrockPort">19132</p>
-                            </div>
-                            <!-- 原本缺少複製圖示，現在加上 -->
-                            <i class="fa-regular fa-copy text-emerald-500/60 transition-colors"></i>
-                        </div>
+                        <i class="fa-regular fa-copy text-emerald-500/60 transition-colors"></i>
                     </div>
-                    <p class="text-[11px] text-gray-500 mt-2 ml-2"><i class="fa-solid fa-circle-info mr-1"></i>基岩版埠號預設19132，通常無需更改。</p>
+                    <p class="text-16px] text-gray-500 mt-2 ml-2"><i class="fa-solid fa-circle-info mr-1"></i>基岩版埠號預設19132，通常無需更改。</p>
                 </div>
             </div>
         </section>
@@ -447,14 +439,14 @@
                     </div>
                     <div class="flex gap-3">
                         <i class="fa-solid fa-rotate-right text-red-300 mt-1"></i>
-                        <div><span class="text-white font-medium">版本不符：</span>確認遊戲版本是否為伺服器支援版本 (Java 1.20+ / Bedrock 1.20+)。</div>
+                        <div><span class="text-white font-medium">版本不符：</span>確認遊戲版本是否為伺服器支援版本 (Java 1.21.11 / Bedrock 1.21.11)。</div>
                     </div>
                     <div class="flex gap-3">
                         <i class="fa-solid fa-clock text-red-300 mt-1"></i>
                         <div><span class="text-white font-medium">逾時/重啟：</span>伺服器三天或不定時備份重啟，可能短暫離線，稍後再試。</div>
                     </div>
                 </div>
-                <p class="text-xs text-gray-400 mt-4 border-t border-white/10 pt-3"><i class="fa-regular fa-lightbulb mr-1"></i> 如果已連線然後掉線，請重啟VPN (並不是關掉VPN，是斷線重連)</p>
+                <p class="text-base text-gray-400 mt-4 border-t border-white/10 pt-3"><i class="fa-regular fa-lightbulb mr-1"></i> 如果已連線然後掉線，請重啟VPN (並不是關掉VPN，是斷線重連)</p>
             </div>
         </section>
 
@@ -520,27 +512,35 @@
                     <div class="space-y-4">
                         <div class="flex items-start gap-3">
                             <i class="fa-solid fa-cube text-indigo-300 mt-1"></i>
-                            <div><span class="text-indigo-200 font-medium">實體主機：</span>伺服器運行於獨立實體主機，無干擾問題，保證運算資源獨享。</div>
+                            <div><span class="text-indigo-200 font-medium">實體隔離層：</span>伺服器運行於獨立實體主機，無鄰居干擾問題，保證運算資源獨享。</div>
                         </div>
                         <div class="flex items-start gap-3">
                             <i class="fa-solid fa-cloud text-indigo-300 mt-1"></i>
-                            <div><span class="text-indigo-200 font-medium">虛擬主機：</span>透過雲端託管，可以抵擋大量Ddos攻擊，於市面主流小型伺服器常見。</div>
+                            <div><span class="text-indigo-200 font-medium">虛擬化中繼：</span>透過 Proxmox VE 虛擬化，建立專屬 Minecraft 容器，快照備份即時恢復。</div>
                         </div>
                         <div class="flex items-start gap-3">
                             <i class="fa-solid fa-shield text-indigo-300 mt-1"></i>
-                            <div><span class="text-indigo-200 font-medium">安全防護：</span>私人VPN有管理員控制白名單，不易個資外洩。</div>
+                            <div><span class="text-indigo-200 font-medium">安全閘道：</span>前置 Nginx 反向代理 + Fail2Ban，過濾異常流量，僅允許 VPN 白名單連入。</div>
                         </div>
                         <div class="flex items-start gap-3">
                             <i class="fa-solid fa-diagram-project text-indigo-300 mt-1"></i>
-                            <div><span class="text-indigo-200 font-medium">網路速度：</span>主機伺服器方網路優異，不因伺服器網路掉包。</div>
+                            <div><span class="text-indigo-200 font-medium">雙線路備援：</span>中華電信/SEEDNet 雙線路，並啟用 BGP 路由優化，降低跨海延遲。</div>
                         </div>
                     </div>
                     <div class="bg-white/5 rounded-2xl border border-white/10 p-5 flex flex-col items-center justify-center">
                         <i class="fa-solid fa-chart-line text-4xl text-indigo-400 mb-3"></i>
-                        <p class="text-sm text-gray-300 text-center leading-relaxed">
-                            <span class="text-indigo-200 font-bold">伺服器採用</span><br>
-                            實體主機於<br>御用兩位免費勞工管理人<br>24小時不停服<br>吃蘋果(發瘋隨便寫)
-                        </p>
+                        <!-- 內層容器設為 text-center，讓標題可以置中 -->
+                        <div class="text-center">
+                            <!-- 標題置中，與圖示中心對齊 -->
+                            <h4 class="text-indigo-200 font-bold text-xl mb-2">伺服器採用</h4>
+                            <!-- 列表項強制左對齊，不繼承父層的置中 -->
+                            <ul class="text-sm text-gray-300 leading-relaxed list-disc list-inside space-y-1 text-left">
+                                <li>實體主機放我家(對！</li>
+                                <li>御用免費勞工</li>
+                                <li>24小時不停服</li>
+                                <li>吃蘋果</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <p class="text-xs text-gray-400 mt-6 border-t border-white/10 pt-3"><i class="fa-regular fa-note-sticky mr-1"></i> 伺服器軟硬體由勞工 YUNCHI跟 Itsuki_Iridium 共同維護</p>
